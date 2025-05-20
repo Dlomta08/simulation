@@ -1,5 +1,5 @@
 let timerInterval;
-let timeLeft = 3 * 60 * 60;
+let timeLeft = 3 * 60;
 
 
 function startQuiz(withTimer) {
