@@ -356,74 +356,131 @@ const quizData = [
         tags: ["Geometry", "Prism", "Surface Area"]
     }
 ];
-  
-  const form = document.getElementById("quizForm");
-  
-  quizData.forEach((q, i) => {
-    const fieldset = document.createElement("fieldset");
-    const legend = document.createElement("legend");
-    legend.innerHTML = `<strong>${i + 1}.</strong><br>${q.question}`;
-    fieldset.appendChild(legend);
-  
-    q.options.forEach((opt, j) => {
-      const label = document.createElement("label");
-      const radio = document.createElement("input");
-      radio.type = "radio";
-      radio.name = `question${i}`;
-      radio.value = j;
-      label.appendChild(radio);
-      label.append(` ${opt}`);
-      fieldset.appendChild(label);
-    });
-  
-    form.insertBefore(fieldset, form.querySelector("button"));
-  });
-  
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    
-    if (timerInterval) {
-      clearInterval(timerInterval);
-    }
+ const form = document.getElementById("quizForm");
+form.innerHTML = ""; // Clear previous content
 
-    let score = 0;
-    const result = document.getElementById("result");
-    result.innerHTML = "";
-  
-    const tagStats = {};
-  
-    quizData.forEach((q, i) => {
-      const answer = form.querySelector(`input[name="question${i}"]:checked`);
-      const fieldset = form.querySelectorAll("fieldset")[i];
-      const explanation = document.createElement("div");
-  
-      const isCorrect = answer && parseInt(answer.value) === q.correct;
-      if (isCorrect) score++;
-  
-      explanation.innerHTML = isCorrect
-        ? `<span style="color: green;">Correct ✔️</span>`
-        : `<span style="color: red;">Wrong ❌</span> – Correct answer: <strong>${q.options[q.correct]}</strong>`;
-  
-      q.tags.forEach(tag => {
-        if (!tagStats[tag]) tagStats[tag] = { correct: 0, total: 0 };
-        tagStats[tag].total++;
-        if (isCorrect) tagStats[tag].correct++;
-      });
-  
-      explanation.style.marginTop = "8px";
-      fieldset.appendChild(explanation);
-    });
-  
-    result.innerHTML = `<strong>Total Score: ${score} / ${quizData.length}</strong><br><h3>Score by Topic:</h3>`;
-    for (let tag in tagStats) {
-      const { correct, total } = tagStats[tag];
-      const percentage = ((correct / total) * 100).toFixed(1);
-      result.innerHTML += `<p>${tag}: ${correct} / ${total} (${percentage}%)</p>`;
-    }
-  
-    form.querySelector("button").disabled = true;
-  
-    // Re-render math after result is shown
-    if (window.MathJax) MathJax.typeset();
+quizData.forEach((q, i) => {
+  const fieldset = document.createElement("fieldset");
+  const legend = document.createElement("legend");
+  legend.innerHTML = `<strong>${i + 1}.</strong><br>${q.question}`;
+  fieldset.appendChild(legend);
+
+  const feedback = document.createElement("div");
+  feedback.className = "feedback";
+  feedback.style.marginTop = "8px";
+
+  q.options.forEach((opt, j) => {
+    const label = document.createElement("label");
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = `question${i}`;
+    radio.value = j;
+    label.appendChild(radio);
+    label.append(` ${opt}`);
+    fieldset.appendChild(label);
   });
+
+  // Add Check button for individual question
+  const checkBtn = document.createElement("button");
+  checkBtn.type = "button";
+  checkBtn.textContent = "შეამოწე";
+  checkBtn.style.marginTop = "8px";
+
+  checkBtn.addEventListener("click", () => {
+    const selected = form.querySelector(`input[name="question${i}"]:checked`);
+    if (!selected) {
+      feedback.innerHTML = `<span style="color: orange;">პასუხი არ არის არჩეული</span>`;
+    } else {
+      const isCorrect = parseInt(selected.value) === q.correct;
+      feedback.innerHTML = isCorrect
+        ? `<span style="color: green;">✔️ სწორი პასუხია</span>`
+        : `<span style="color: red;">❌ არასწორია</span> – სწორი პასუხია: <strong>${q.options[q.correct]}</strong>`;
+    }
+    if (window.MathJax) MathJax.typeset(); // Re-render MathJax
+  });
+
+  fieldset.appendChild(checkBtn);
+  fieldset.appendChild(feedback);
+  form.appendChild(fieldset);
+});
+
+// Submit button and score display container
+const submitBtn = document.createElement("button");
+submitBtn.type = "button";
+submitBtn.textContent = "შეამოწმე ყველა";
+submitBtn.style.marginTop = "20px";
+submitBtn.style.display = "block";
+
+const scoreDisplay = document.createElement("div");
+scoreDisplay.style.marginTop = "12px";
+scoreDisplay.style.fontWeight = "bold";
+
+submitBtn.addEventListener("click", () => {
+  let score = 0;
+
+  quizData.forEach((q, i) => {
+    const selected = form.querySelector(`input[name="question${i}"]:checked`);
+    const feedback = form.querySelectorAll(".feedback")[i];
+
+    if (!selected) {
+      feedback.innerHTML = `<span style="color: orange;">პასუხი არ არის არჩეული</span>`;
+    } else {
+      const isCorrect = parseInt(selected.value) === q.correct;
+      if (isCorrect) score++;
+      feedback.innerHTML = isCorrect
+        ? `<span style="color: green;">✔️ სწორი პასუხია</span>`
+        : `<span style="color: red;">❌ არასწორია</span> – სწორი პასუხია: <strong>${q.options[q.correct]}</strong>`;
+    }
+  });
+
+  scoreDisplay.innerHTML = `თქვენ დააგროვეთ ${score} სწორი პასუხი ${quizData.length}-დან`;
+  if (window.MathJax) MathJax.typeset();
+});
+
+form.appendChild(submitBtn);
+form.appendChild(scoreDisplay);
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
   
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
+  
+  let score = 0;
+  const result = document.getElementById("result");
+  result.innerHTML = "";
+
+  const tagStats = {};
+
+  quizData.forEach((q, i) => {
+    const answer = form.querySelector(`input[name="question${i}"]:checked`);
+    const fieldset = form.querySelectorAll("fieldset")[i];
+    const explanation = document.createElement("div");
+
+    const isCorrect = answer && parseInt(answer.value) === q.correct;
+    if (isCorrect) score++;
+    explanation.innerHTML = isCorrect
+      ? `<span style="color: green;">Correct ✔️</span>`
+      : `<span style="color: red;">Wrong ❌</span> – Correct answer: <strong>${q.options[q.correct]}</strong>`;
+    q.tags.forEach(tag => {
+      if (!tagStats[tag]) tagStats[tag] = { correct: 0, total: 0 };
+      tagStats[tag].total++;
+      if (isCorrect) tagStats[tag].correct++;
+    });
+
+    explanation.style.marginTop = "8px";
+    fieldset.appendChild(explanation);
+  });
+
+  result.innerHTML = `<strong>Total Score: ${score} / ${quizData.length}</strong><br><h3>Score by Topic:</h3>`;
+  for (let tag in tagStats) {
+    const { correct, total } = tagStats[tag];
+    const percentage = ((correct / total) * 100).toFixed(1);
+    result.innerHTML += `<p>${tag}: ${correct} / ${total} (${percentage}%)</p>`;
+  }
+
+  form.querySelector("button").disabled = true;
+
+  // Re-render math after result is shown
+  if (window.MathJax) MathJax.typeset();
+});
