@@ -1,0 +1,431 @@
+let timerInterval;
+let timeLeft = 3 * 60 * 60; // 3 Hours 
+
+function startQuiz(withTimer) {
+  document.getElementById("mode-selection").style.display = "none";
+  const quizForm = document.getElementById("quizForm");
+  quizForm.style.display = "block";
+
+  if (withTimer) {
+    document.getElementById("timer").style.display = "block";
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        alert("დრო ამოიწურა! ქვიზი დასრულებულია.");
+        quizForm.requestSubmit(); // safely submits even if clicked from code
+      }
+    }, 1000);
+  }
+}
+
+function updateTimerDisplay() {
+    const hours = String(Math.floor(timeLeft / 3600)).padStart(2, "0");
+    const minutes = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, "0");
+    const seconds = String(timeLeft % 60).padStart(2, "0");
+    document.getElementById("time").textContent = `${hours}:${minutes}:${seconds}`;
+}
+
+
+const quizData = [
+  {
+    id: 1,
+    question: "$y = -x^3$ და $y = \\frac{1}{x^5}$ ფუნქციათა გრაფიკების გადაკვეთის წერტილია რაოდენობა?",
+    options: [
+      "უამრავი",
+      "4",
+      "3", 
+      "2",
+      "1",
+      "არცერთი"
+    ],
+    correct: "e"
+  },
+  {
+    id: 2,
+    question: "ჩამოთვლილთაგან რომელის ტოლია $\\frac{4\\sqrt{9}}{\\sqrt{81}}$?",
+    options: [
+      "$\\frac{\\sqrt{3}}{3}$",
+      "$\\frac{4\\sqrt{243}}{3}$",
+      "$\\frac{4\\sqrt{81}}{9}$",
+      "$\\frac{4\\sqrt{27}}{9}$",
+      "$\\frac{3\\sqrt{81}}{3}$",
+      "$\\frac{12\\sqrt{243}}{3}$"
+    ],
+    correct: "a"
+  },
+  {
+    id: 3,
+    question: "მოცემული ფუნქციებიდან $f(x) = [x] - 1$; $g(x) = 2[x] + |x|$ და $h(x) = \\{\\frac{1}{2}x\\}$ რომელია პერიოდული? (აქ $[x]$ არის $x$-ის მთელი ნაწილი, ხოლო $\\{x\\}$ არის $x$-ის წილადი ნაწილი)",
+    options: [
+      "მხოლოდ $f(x)$",
+      "მხოლოდ $g(x)$",
+      "მხოლოდ $h(x)$",
+      "$f(x)$ და $g(x)$",
+      "$f(x)$ და $h(x)$",
+      "$g(x)$ და $h(x)$"
+    ],
+    correct: "a"
+  },
+  {
+    id: 4,
+    question: "$ABC$ სამკუთხედში $M$ და $N$ წერტილები შესაბამისად $BC$ და $AC$ ვერდებზე მდებარეობს. ცნობილია, რომ $BM:MC = 1:3$, ხოლო $MN$ პარალელურია $AB$ ვერდისა. იპოვე $AMN$ და $ABC$ სამკუთხედების ფართობები შეფარდება.",
+    options: [
+      "1:4",
+      "2:9",
+      "3:13",
+      "3:16",
+      "5:18",
+      "1:3"
+    ],
+    correct: "d"
+  },
+  {
+    id: 5,
+    question: "სამკუთხედის ორი ვერდის სიგრძე 10-ისა და 12-ის ტოლია. რისი ტოლია ამ სამკუთხედის ფართობი, თუ მესამე ვერდისადმი გამავალი მედიანის სიგრძე 5-ის ტოლია.",
+    options: [
+      "60",
+      "56",
+      "30",
+      "72",
+      "36",
+      "48"
+    ],
+    correct: "e"
+  },
+  {
+    id: 6,
+    question: "იპოვე $\\sqrt{(x^2 + 6x + 9)^2} \\leq 4$ უტოლობის მთელი ამონახსნია რაოდენობა.",
+    options: [
+      "4",
+      "10",
+      "9",
+      "5",
+      "11",
+      "7"
+    ],
+    correct: "f"
+  },
+  {
+    id: 7,
+    question: "ჩამოთვლილთაგან რომელის ტოლია $\\frac{1 - 6+3\\sqrt{3}}{2-\\sqrt{3} - 5\\sqrt{9}}$?",
+    options: [
+      "0,8",
+      "$0,8\\sqrt{3}$",
+      "1",
+      "$0,4\\sqrt{9}$",
+      "2",
+      "$0,8 - 0,4\\sqrt{3}$"
+    ],
+    correct: "f"
+  },
+  {
+    id: 8,
+    question: "იპოვე $[\\sqrt{2023}] \\cdot \\{-\\frac{199}{4}\\}$ (აქ $[a]$ არის $a$-ს მთელი ნაწილი, ხოლო $\\{b\\}$ არის $b$-ს წილადური ნაწილი).",
+    options: [
+      "2",
+      "1",
+      "$1\\frac{1}{2}$",
+      "$-1\\frac{1}{4}$",
+      "$\\frac{1}{5}$",
+      "$3\\frac{3}{4}$"
+    ],
+    correct: "f"
+  },
+  {
+    id: 9,
+    question: "$ABCD$ ტრაპეციაში ($BC$ და $AD$ შესაბამისად პატარა და დიდი ფუძეები) $AC$ და $BD$ დიაგონალები $K$ წერტილში იკვეთებან. იპოვე $BC$ და $AD$ ფუძეები შეფარდება, თუ $ABK$ სამკუთხედის ფართობი $ABCD$ ტრაპეციის ფართობის $\\frac{1}{16}$ ნაწილია.",
+    options: [
+      "1:2",
+      "2:3",
+      "1:3",
+      "3:5",
+      "2:5",
+      "3:4"
+    ],
+    correct: "c"
+  },
+  {
+    id: 10,
+    question: "$ABCD$ პარალელოგრამში $M$ წერტილო $BC$ ვერდზე მდებარეობს. იპოვე $ABM$ და $AMD$ სამკუთხედების ფართობები შეფარდება, თუ $BM:MC = 2:5$.",
+    options: [
+      "1:3",
+      "3:11",
+      "2:5",
+      "2:7",
+      "1:4",
+      "1:6"
+    ],
+    correct: "a"
+  },
+  {
+    id: 11,
+    question: "რისი ტოლია $x^2 + 4x - |x + 2| - 2 > 0$ უტოლობის ამონახსნი?",
+    options: [
+      "$(-3; 2)$",
+      "$(-\\infty; -1) \\cup (5; +\\infty)$",
+      "$(-1; 4)$",
+      "$(-\\infty; -2) \\cup (3; +\\infty)$",
+      "$(-\\infty; -5) \\cup (1; +\\infty)$",
+      "$\\emptyset$"
+    ],
+    correct: "d"
+  },
+  {
+    id: 12,
+    question: "ჩამოთვლილთაგან რისი ტოლია $y = x^2 + 2x$, სადაც $x \\leq -1$, ფუნქციის შებრუნებული ფუნქციის გრაფიკისა და $y = -4$ ფუნქციის გრაფიკის გადაკვეთის წერტილის აბსცისა?",
+    options: [
+      "4",
+      "-12",
+      "8",
+      "-6",
+      "16",
+      "-81"
+    ],
+    correct: "a"
+  },
+  {
+    id: 13,
+    question: "იპოვე $\\left|\\frac{7x-1}{x+1}\\right| \\geq 3$ უტოლობის მთელი ამონახსნების ჯამი?",
+    options: [
+      "0",
+      "-10",
+      "7",
+      "-9",
+      "11",
+      "-6"
+    ],
+    correct: "a"
+  },
+  {
+    id: 14,
+    question: "$ABCD$ პარალელოგრამში $O$ წერტილო $AC$ და $BD$ დიაგონალების გადაკვეთის წერტილია. იპოვე $AO$ და $OC$ შეფარდება, თუ $BCD$ სამკუთხედის ფართობი $ABCD$ პარალელოგრამის ფართობის $\\frac{2}{5}$ ნაწილია.",
+    options: [
+      "4:5",
+      "3:4",
+      "5:7",
+      "3:5",
+      "2:7",
+      "2:3"
+    ],
+    correct: "b"
+  },
+  {
+    id: 15,
+    question: "$ABCD$ ტრაპეციაში დიაგონალების გადაკვეთის წერტილზე გავლებულია $BC$ და $AD$ ფუძეების პარალელური წრფე, რომელიც $AB$ და $CD$ ფერდებს შესაბამისად $E$ და $F$ წერტილებში კვეთს. იპოვე $EBCF$ და $AEFD$ ტრაპეციების ფართობები შეფარდება, თუ $BC:AD = 1:2$.",
+    options: [
+      "1:4",
+      "5:16",
+      "2:9",
+      "3:16",
+      "7:20",
+      "3:16"
+    ],
+    correct: "f"
+  },
+  {
+    id: 16,
+    question: "იპოვე $y = x^3 + 3x^2 + 3x - 1$ ფუნქციის შებრუნებული ფუნქცია.",
+    options: [
+      "$y = -\\sqrt[3]{x + 2} + 1$",
+      "$y = \\sqrt[3]{x - 2} + 1$",
+      "$y = -\\sqrt[3]{x + 1} - 2$",
+      "$y = \\sqrt[3]{x + 2} - 1$",
+      "$y = -\\sqrt[3]{x - 2} + 1$",
+      "$y = \\sqrt[3]{x + 1} - 2$"
+    ],
+    correct: "f"
+  },
+  {
+    id: 17,
+    question: "ჩამოთვლილთაგან რომელის ტოლია $\\frac{(\\sqrt[3]{a\\sqrt{a}} + |a \\cdot \\sqrt[3]{a}|)\\sqrt{a}}{1+\\sqrt[4]{a}}$?",
+    options: [
+      "$a\\sqrt{a}$",
+      "$\\sqrt{a} + 1$",
+      "$a\\sqrt[3]{a}$",
+      "$(\\sqrt{a} - 1)\\sqrt{a}$",
+      "$\\sqrt{a \\sqrt[3]{a}}$",
+      "$a$"
+    ],
+    correct: "f"
+  },
+  {
+    id: 18,
+    question: "თუ $f(x) = \\frac{5x-5}{2x+5}$ მაშინ ჩამოთვლილი წინადადებიდან რომელი ორია ცუდადცინარი?",
+    options: [
+      "I და II",
+      "II და III",
+      "I და IV",
+      "II და IV",
+      "III და VI",
+      "I და III"
+    ],
+    correct: "f"
+  },
+  {
+    id: 19,
+    question: "$ABCD$ პარალელოგრამში $AC$ დიაგონალი 39-ის ტოლია. $M$ წერტილო $AD$ ვერდის შუაწერტილია. იპოვე $ABCD$ პარალელოგრამის ფართობი, თუ $BC$ ვერდის სიგრძე 26-ის, ხოლო $BM$ მონაკვეთის სიგრძე 30-ის ტოლია.",
+    options: [
+      "480",
+      "720",
+      "640",
+      "780",
+      "900",
+      "420"
+    ],
+    correct: "c"
+  },
+  {
+    id: 20,
+    question: "$ABCD$ კვადრატის $BC$ ვერდზე აღებულია $M$ წერტილო. $BD$ და $AM$ მონაკვეთები $O$ წერტილში იკვეთებან. იპოვე $ABCD$ კვადრატის და $AOD$ სამკუთხედის ფართობები შეფარდება, თუ $BO:OD = 1:2$.",
+    options: [
+      "3:1",
+      "12:5",
+      "8:3",
+      "9:4",
+      "16:5",
+      "10:3"
+    ],
+    correct: "f"
+  },
+  {
+    id: 21,
+    question: "$f(x) = \\frac{1}{|x+4|+5}$, სადაც $x \\in [-5; 1]$ ფუნქციის მნიშვნელობათა სიმრავლე?",
+    options: [
+      "$(0; 0,2]$",
+      "$(0; 1]$",
+      "$[0,1; 1]$",
+      "$[0,2; +\\infty)$",
+      "$[0,1; 0,2]$",
+      "$[0,1; +\\infty)$"
+    ],
+    correct: "a"
+  },
+  {
+    id: 22,
+    question: "$\\sqrt[4]{x^2} \\cdot \\sqrt[5]{x^2} - \\sqrt[5]{x\\sqrt{x}} = 56$ განტოლებას ერთი ამონახსნი აქვს. ჩამოთვლილთაგან რომელ შუალედში იქნება ეს ამონახსნი?",
+    options: [
+      "$(1; 10)$",
+      "$(10; 30)$",
+      "$(60; 100)$",
+      "$(100; 300)$",
+      "$(500; 1000)$",
+      "$(1000; 5000)$"
+    ],
+    correct: "f"
+  },
+  {
+    id: 23,
+    question: "იპოვე $a$ პარამეტრის ყველა მნიშვნელობა, თუ ცნობილია, რომ $|x + 2| + |x - 3| \\leq a$ და $\\sqrt{-x^2 + x + 6} > -1$ ტოლღირებისო უტოლობებია.",
+    options: [
+      "$a \\in \\{5\\}$",
+      "$a \\in \\{0\\}$",
+      "$a \\in [-2; 3]$",
+      "$a \\in \\{1\\}$",
+      "$a \\in \\{-2; 3\\}$",
+      "$a \\in \\emptyset$"
+    ],
+    correct: "f"
+  },
+  {
+    id: 24,
+    question: "$ABCD$ ტრაპეციაში $AC$ და $BD$ დიაგონალები 13-ისა და 15-ის ტოლია. იპოვე ტრაპეციის ფართობი, თუ მისი ფუძეების შუასწორებული მონაკვეთის სიგრძე 7-ის ტოლია.",
+    options: [
+      "80",
+      "96",
+      "72",
+      "144",
+      "84",
+      "162"
+    ],
+    correct: "e"
+  },
+  {
+    id: 25,
+    question: "$ABC$ სამკუთხედში $CK$ ბისექტრისა $BD$ მედიანას $E$ წერტილში კვეთს. იპოვე $KED$ და $ABC$ სამკუთხედების ფართობები შეფარდება.",
+    options: [
+      "3:32",
+      "1:16",
+      "3:20",
+      "1:12",
+      "2:21",
+      "1:24"
+    ],
+    correct: "f"
+  }
+];
+
+
+  
+  const form = document.getElementById("quizForm");
+  
+  quizData.forEach((q, i) => {
+    const fieldset = document.createElement("fieldset");
+    const legend = document.createElement("legend");
+    legend.innerHTML = `<strong>${i + 1}.</strong><br>${q.question}`;
+    fieldset.appendChild(legend);
+  
+    q.options.forEach((opt, j) => {
+      const label = document.createElement("label");
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = `question${i}`;
+      radio.value = j;
+      label.appendChild(radio);
+      label.append(` ${opt}`);
+      fieldset.appendChild(label);
+    });
+  
+    form.insertBefore(fieldset, form.querySelector("button"));
+  });
+  
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
+
+    let score = 0;
+    const result = document.getElementById("result");
+    result.innerHTML = "";
+  
+    const tagStats = {};
+  
+    quizData.forEach((q, i) => {
+      const answer = form.querySelector(`input[name="question${i}"]:checked`);
+      const fieldset = form.querySelectorAll("fieldset")[i];
+      const explanation = document.createElement("div");
+  
+      const isCorrect = answer && parseInt(answer.value) === q.correct;
+      if (isCorrect) score++;
+  
+      explanation.innerHTML = isCorrect
+        ? `<span style="color: green;">Correct ✔️</span>`
+        : `<span style="color: red;">Wrong ❌</span> – Correct answer: <strong>${q.options[q.correct]}</strong>`;
+  
+      q.tags.forEach(tag => {
+        if (!tagStats[tag]) tagStats[tag] = { correct: 0, total: 0 };
+        tagStats[tag].total++;
+        if (isCorrect) tagStats[tag].correct++;
+      });
+  
+      explanation.style.marginTop = "8px";
+      fieldset.appendChild(explanation);
+    });
+  
+    result.innerHTML = `<strong>Total Score: ${score} / ${quizData.length}</strong><br><h3>Score by Topic:</h3>`;
+    for (let tag in tagStats) {
+      const { correct, total } = tagStats[tag];
+      const percentage = ((correct / total) * 100).toFixed(1);
+      result.innerHTML += `<p>${tag}: ${correct} / ${total} (${percentage}%)</p>`;
+    }
+  
+    form.querySelector("button").disabled = true;
+  
+    // Re-render math after result is shown
+    if (window.MathJax) MathJax.typeset();
+  });
+  
