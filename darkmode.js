@@ -4,13 +4,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (savedTheme === 'dark') {
     document.body.classList.add('dark-mode');
-    if (toggle) toggle.textContent = '☀️ Light Mode';
+    if (toggle) toggle.textContent = '☀️';
   }
 
   if (toggle) {
     toggle.addEventListener('click', () => {
       const isDark = document.body.classList.toggle('dark-mode');
-      toggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+      toggle.textContent = isDark ? '☀️' : '🌙';
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
   }

@@ -13,6 +13,12 @@
       svg: { fontCache: 'global' }
     };
   </script>
+  <script>
+  // Immediately apply dark mode if saved in localStorage
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.add('dark-mode');
+  }
+</script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 </head>
 <body>

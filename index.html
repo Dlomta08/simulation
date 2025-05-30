@@ -5,10 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ტესტები</title>
   <link rel="stylesheet" href="style1.css">
+  <script>
+  // Immediately apply dark mode if saved in localStorage
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.add('dark-mode');
+  }
+</script>
 </head>
 <body>
   
-  <button id="toggle-dark">🌙 Dark Mode</button>
+  <button id="toggle-dark">🌙</button>
 
   <div class="center-container">
     <a href="page2.html">

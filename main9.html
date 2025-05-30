@@ -4,9 +4,15 @@
   <meta charset="UTF-8">
   <title>Quizzes by Year</title>
   <link rel="stylesheet" href="styles2.css">
+  <script>
+  // Immediately apply dark mode if saved in localStorage
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.add('dark-mode');
+  }
+</script>
 </head>
 <body>
-  <button id="toggle-dark">🌙 Dark Mode</button>
+  <button id="toggle-dark">🌙 </button>
   <div class="container">
   <div class="year-table" id="yearTable">
     <script>
