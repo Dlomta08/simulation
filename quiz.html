@@ -6,6 +6,7 @@
   <title>Math Quiz</title>
   <link rel="stylesheet" href="qvizebi.css">
   <link rel="stylesheet" href="quiz.css">
+  <link rel="stylesheet" href="quiz-style.css">
   <script>
     window.MathJax = {
       tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
@@ -15,13 +16,16 @@
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 </head>
 <body>
+  <button id="toggle-dark">🌙 Dark Mode</button>
+
   <h1 id="quiz-title"></h1>
-  <div id="mode-selection">
+  
+  <div id="mode-selection" class="mode-selections" >
     <p>აირჩიეთ რეჟიმი:</p>
     <button onclick="startQuiz(false)">ჩვეულებრივი</button>
     <button onclick="startQuiz(true)">სიმულაცია</button>
   </div>
-
+  
   <!-- Timer Display -->
   <div id="timer">დარჩენილი დრო: <span id="time">05:00</span></div>
 
@@ -57,5 +61,6 @@
     }
   </script>
   <script src="quiz.js"></script>
+  <script src="darkmode.js"></script>
 </body>
 </html>
