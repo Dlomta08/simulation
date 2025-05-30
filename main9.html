@@ -7,61 +7,41 @@
 </head>
 <body>
   <div class="container">
-    <div class="year-table">
-      <!-- You can generate more of these rows dynamically if needed -->
-      <div class="year-row">
-        <div class="year">2024/25</div>
-        <div class="quiz-buttons">
-          <button onclick="handleQuizClick('2024/25', 1, 9)">1</button>
-          <button onclick="handleQuizClick('2024/25', 2, 9)">2</button>
-          <button onclick="handleQuizClick('2024/25', 3, 9)">3</button>
-          <button onclick="handleQuizClick('2024/25', 4, 9)">4</button>
-          <button onclick="handleQuizClick('2024/25', 5, 9)">5</button>
-        </div>
-      </div>
-      <div class="year-row">
-        <div class="year">2023/24</div>
-        <div class="quiz-buttons">
-          <button onclick="handleQuizClick('2023/24', 1, 9)">1</button>
-          <button onclick="handleQuizClick('2023/24', 2, 9)">2</button>
-          <button onclick="handleQuizClick('2023/24', 3, 9)">3</button>
-          <button onclick="handleQuizClick('2023/24', 4, 9)">4</button>
-          <button onclick="handleQuizClick('2023/24', 5, 9)">5</button>
-        </div>
-      </div>
-      <div class="year-row">
-        <div class="year">2022/23</div>
-        <div class="quiz-buttons">
-          <button onclick="handleQuizClick('2022/23', 1, 9)">1</button>
-          <button onclick="handleQuizClick('2022/23', 2, 9)">2</button>
-          <button onclick="handleQuizClick('2022/23', 3, 9)">3</button>
-          <button onclick="handleQuizClick('2022/23', 4, 9)">4</button>
-          <button onclick="handleQuizClick('2022/23', 5, 9)">5</button>
-        </div>
-      </div>
-      <div class="year-row">
-        <div class="year">2021/22</div>
-        <div class="quiz-buttons">
-          <button onclick="handleQuizClick('2021/22', 1, 9)">1</button>
-          <button onclick="handleQuizClick('2021/22', 2, 9)">2</button>
-          <button onclick="handleQuizClick('2021/22', 3, 9)">3</button>
-          <button onclick="handleQuizClick('2021/22', 4, 9)">4</button>
-          <button onclick="handleQuizClick('2021/22', 5, 9)">5</button>
-        </div>
-      </div>
-      <div class="year-row">
-        <div class="year">2020/21</div>
-        <div class="quiz-buttons">
-          <button onclick="handleQuizClick('2020/21', 1, 9)">1</button>
-          <button onclick="handleQuizClick('2020/21', 2, 9)">2</button>
-          <button onclick="handleQuizClick('2020/21', 3, 9)">3</button>
-          <button onclick="handleQuizClick('2020/21', 4, 9)">4</button>
-          <button onclick="handleQuizClick('2020/21', 5, 9)">5</button>
-        </div>
-      </div>
-    </div>
+  <div class="year-table" id="yearTable">
+    <script>
+    const classNum = 9;
+    const startYear = 2020;
+    const endYear = 2024;
+    const quizzesPerYear = 5;
+    const yearTable = document.getElementById("yearTable");
+    for (let y = endYear; y >= startYear; y--) {
+      const academicYear = `${y}/${(y + 1).toString().slice(-2)}`;
+      const row = document.createElement("div");
+      row.className = "year-row";
+      const yearLabel = document.createElement("div");
+      yearLabel.className = "year";
+      yearLabel.textContent = academicYear;
+      const btnGroup = document.createElement("div");
+      btnGroup.className = "quiz-buttons";
+      for (let q = 1; q <= quizzesPerYear; q++) {
+        const btn = document.createElement("button");
+        btn.textContent = q;
+        btn.onclick = () => handleQuizClick(academicYear, q, classNum);
+        btnGroup.appendChild(btn);
+      }
+      row.appendChild(yearLabel);
+      row.appendChild(btnGroup);
+      yearTable.appendChild(row);
+    }
+  </script>
   </div>
-
-  <script src="script3.js"></script>
+</div>
+  <script>
+    function handleQuizClick(year, number, classNum) {
+      const yearFolder = year.replace("/", "-");
+      const url = `quiz.html?class=${classNum}&year=${yearFolder}&number=${number}`;
+      window.location.href = url;
+    }
+  </script>
 </body>
 </html>
