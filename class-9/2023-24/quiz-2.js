@@ -1,7 +1,7 @@
 const quizData = [
   {
     id: 1,
-    question: "$y = -x^3$ და $y = \\frac{1}{x^5}$ ფუნქციათა გრაფიკების გადაკვეთის წერტილია რაოდენობა?",
+    question: "<img src='images/image29.png' style='max-width: 100%; height: auto;'> ფუნქციათა გრაფიკების გადაკვეთის წერტილია რაოდენობა?",
     options: [
       "უამრავი",
       "4",
