@@ -44,20 +44,12 @@ function renderQuiz(){
     const feedback = document.createElement("div");
     feedback.className = "feedback";
 
-    q.options.forEach((opt, j) => {
-      const label = document.createElement("label");
-      const radio = document.createElement("input");
-      radio.type = "radio";
-      radio.name = `question${i}`;
-      radio.value = j;
-      label.appendChild(radio);
-      label.append(` ${opt}`);
-      fieldset.appendChild(label);
-    });
     const checkBtn = document.createElement("button");
     checkBtn.type = "button";
     checkBtn.textContent = "შემოწმება";
     checkBtn.style.marginTop = "8px";
+    checkBtn.style.display = "none"; // initially hidden
+
     checkBtn.addEventListener("click", () => {
       const selected = form.querySelector(`input[name="question${i}"]:checked`);
       if (!selected) {
@@ -70,20 +62,39 @@ function renderQuiz(){
       }
       if (window.MathJax) MathJax.typeset();
     });
+
+    q.options.forEach((opt, j) => {
+      const label = document.createElement("label");
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = `question${i}`;
+      radio.value = j;
+      radio.addEventListener("change", () => {
+        if (!simulationMode) checkBtn.style.display = "inline-block";
+      });
+      label.appendChild(radio);
+      label.append(` ${opt}`);
+      fieldset.appendChild(label);
+    });
+
     if(!simulationMode) fieldset.appendChild(checkBtn);
     fieldset.appendChild(feedback);
     form.appendChild(fieldset);
   });
+
   if (window.MathJax) MathJax.typeset();
+
   const submitBtn = document.createElement("button");
   submitBtn.type = "submit";
   submitBtn.textContent = "დასრულება";
   submitBtn.style.marginTop = "20px";
   form.appendChild(submitBtn);
+
   const result = document.createElement("div");
   result.id = "result";
   result.style.marginTop = "12px";
   form.appendChild(result);
+
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     
@@ -110,11 +121,6 @@ function renderQuiz(){
         ? `<span style="color: green;">პასუხი სწორია ✔️</span>`
         : `<span style="color: red;">პასუხი არასწორია ❌</span> – სწორი პასუხია: <strong>${q.options[q.correct]}</strong>`;
       }
-      // q.tags.forEach(tag => {
-      //   if (!tagStats[tag]) tagStats[tag] = { correct: 0, total: 0 };
-      //   tagStats[tag].total++;
-      //   if (isCorrect) tagStats[tag].correct++;
-      // });
       fieldset.appendChild(feedback);
     });
 
@@ -126,7 +132,6 @@ function renderQuiz(){
     }
 
     if(simulationMode) form.querySelector("button[type='submit']").disabled = true;
-    // Re-render math after result is shown
     if (window.MathJax) MathJax.typeset();
   });
 }
