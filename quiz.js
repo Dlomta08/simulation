@@ -94,7 +94,7 @@ function renderQuiz(){
           .join(", ");
         feedback.innerHTML = `
           <span style="color: red;">პასუხი არასწორია ❌</span>
-          – სწორი კითხვაში ყველა პასუხია: <strong>${allCorrectOptions}</strong>
+          – სწორი პასუხებია: <strong>${allCorrectOptions}</strong>
         `;
       } else {
         feedback.innerHTML = `
