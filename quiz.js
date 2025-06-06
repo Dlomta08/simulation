@@ -37,6 +37,16 @@ function renderQuiz(){
   form.innerHTML = "";
   quizData.forEach((q, i) => {
     const fieldset = document.createElement("fieldset");
+
+
+    if (typeof q.warning === "string" && q.warning.trim() !== "") {
+      const warnDiv = document.createElement("div");
+      warnDiv.className = "warning";
+      warnDiv.innerText = q.warning;
+      fieldset.appendChild(warnDiv);
+    }
+
+
     const legend = document.createElement("legend");
     legend.innerHTML = `<strong>${i + 1}.</strong><br>${q.question}`;
     fieldset.appendChild(legend);
@@ -51,17 +61,51 @@ function renderQuiz(){
     checkBtn.style.display = "none"; // initially hidden
 
     checkBtn.addEventListener("click", () => {
+      if (Array.isArray(q.correct) && q.correct.length === q.options.length) {
+        feedback.innerHTML = `<span style="color: green;">ყველა პასუხი სწორია ✔️</span>`;
+        if (window.MathJax) MathJax.typeset();
+        return;
+      }
+
       const selected = form.querySelector(`input[name="question${i}"]:checked`);
       if (!selected) {
-        feedback.innerHTML = `<span style="color: orange;">პასუხი არ არის არჩეული</span>`;
+    feedback.innerHTML = `<span style="color: orange;">პასუხი არ არის არჩეული</span>`;
+  } else {
+    const userIdx = parseInt(selected.value);
+    let isCorrect;
+
+    // If q.correct is an array, check if userIdx is included;
+    // otherwise compare directly as before.
+    if (Array.isArray(q.correct)) {
+      isCorrect = q.correct.includes(userIdx);
+    } else {
+      isCorrect = (userIdx === q.correct);
+    }
+
+    if (isCorrect) {
+      // If every answer is correct, the simplest feedback is:
+      feedback.innerHTML = `<span style="color: green;">პასუხი სწორია ✔️</span>`;
+    } else {
+      // If q.correct is an array, show all “correct” options; else show the single one.
+      if (Array.isArray(q.correct)) {
+        // Build a comma‐separated list of all correct options:
+        const allCorrectOptions = q.correct
+          .map(idx => q.options[idx])
+          .join(", ");
+        feedback.innerHTML = `
+          <span style="color: red;">პასუხი არასწორია ❌</span>
+          – სწორი კითხვაში ყველა პასუხია: <strong>${allCorrectOptions}</strong>
+        `;
       } else {
-        const isCorrect = parseInt(selected.value) === q.correct;
-        feedback.innerHTML = isCorrect
-          ? `<span style="color: green;">პასუხი სწორია ✔️</span>`
-          : `<span style="color: red;">პასუხი არასწორია ❌</span> – სწორი პასუხია: <strong>${q.options[q.correct]}</strong>`;
+        feedback.innerHTML = `
+          <span style="color: red;">პასუხი არასწორია ❌</span>
+          – სწორი პასუხია: <strong>${q.options[q.correct]}</strong>
+        `;
       }
+    }
       if (window.MathJax) MathJax.typeset();
-    });
+  }
+});
 
     q.options.forEach((opt, j) => {
       const label = document.createElement("label");

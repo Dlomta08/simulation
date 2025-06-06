@@ -194,7 +194,8 @@ const quizData = [
         correct: 2, // ე) πR³/√2 is the correct answer
         tags: ["სტერეომეტრია", "ცილინდრი"]
     },
-    {
+    {   
+        warning: "ტესტში ხარვეზია ყველა პასუხი სწორია",
         question: "ჩამოთვლილთაგან რისი ტოლი უნდა იყოს $a$, რომ $f(x) = ax^3 + 3x^2 + x + 7$ ფუნქციას ჰქონდეს ერთადერთი ექსტრემუმის წერტილი?",
         options: [
             "2 ან 5",
@@ -204,7 +205,7 @@ const quizData = [
             "1",
             "0 ან 7"
         ],
-        correct: 6, // ე) πR³/√2 is the correct answer
+        correct: [0,1,2,3,4,5], // ე) πR³/√2 is the correct answer
         tags: ["სტერეომეტრია", "ცილინდრი"]
     },
     {
