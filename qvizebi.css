@@ -31,7 +31,11 @@ button {
   cursor: pointer;
 }
 
-
+.warning {
+  color: #c62828;       /* წითელი ტექსტი */
+  font-weight: bold;
+  margin-bottom: 8px;
+}
 
 #result {
   margin-top: 30px;
