@@ -51,6 +51,15 @@ function renderQuiz(){
     legend.innerHTML = `<strong>${i + 1}.</strong><br>${q.question}`;
     fieldset.appendChild(legend);
 
+    if (q.image) {
+      const img = document.createElement("img");
+      img.src = q.image;
+      img.alt = q.alt || `Question ${i+1} illustration`;
+      img.style.maxWidth = "100%";
+      img.style.margin   = "8px 0";
+      fieldset.appendChild(img);
+    }
+
     const feedback = document.createElement("div");
     feedback.className = "feedback";
 
