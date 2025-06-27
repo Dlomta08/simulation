@@ -1,7 +1,7 @@
 let timerInterval;
 let timeLeft = 3 * 60 * 60;
 let simulationMode = false;
-
+const fox = ["ა)", "ბ)", "გ)", "დ)", "ე)", "ვ)"];
 function startQuiz(withTimer) {
   simulationMode = withTimer; 
   document.getElementById("mode-selection").style.display = "none";
@@ -99,7 +99,7 @@ function renderQuiz(){
       if (Array.isArray(q.correct)) {
         // Build a comma‐separated list of all correct options:
         const allCorrectOptions = q.correct
-          .map(idx => q.options[idx])
+          .map(idx => fox[idx] + " " + q.options[idx])
           .join(", ");
         feedback.innerHTML = `
           <span style="color: red;">პასუხი არასწორია ❌</span>
@@ -108,7 +108,7 @@ function renderQuiz(){
       } else {
         feedback.innerHTML = `
           <span style="color: red;">პასუხი არასწორია ❌</span>
-          – სწორი პასუხია: <strong>${q.options[q.correct]}</strong>
+          – სწორი პასუხია: <strong>${fox[q.correct]} ${q.options[q.correct]}</strong>
         `;
       }
     }
@@ -126,7 +126,8 @@ function renderQuiz(){
         if (!simulationMode) checkBtn.style.display = "inline-block";
       });
       label.appendChild(radio);
-      label.append(` ${opt}`);
+      opt = fox[j] + " " + opt;
+      label.append(`${opt}`);
       fieldset.appendChild(label);
     });
 
@@ -172,7 +173,7 @@ function renderQuiz(){
       }else{
         feedback.innerHTML = isCorrect
         ? `<span style="color: green;">პასუხი სწორია ✔️</span>`
-        : `<span style="color: red;">პასუხი არასწორია ❌</span> – სწორი პასუხია: <strong>${q.options[q.correct]}</strong>`;
+        : `<span style="color: red;">პასუხი არასწორია ❌</span> – სწორი პასუხია: <strong> ${fox[q.correct]} ${q.options[q.correct]} </strong>`;
       }
       fieldset.appendChild(feedback);
     });
