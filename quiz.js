@@ -125,8 +125,8 @@ function renderQuiz(){
       radio.addEventListener("change", () => {
         if (!simulationMode) checkBtn.style.display = "inline-block";
       });
+      label.append(`${fox[j]}`);
       label.appendChild(radio);
-      opt = fox[j] + " " + opt;
       label.append(`${opt}`);
       fieldset.appendChild(label);
     });
