@@ -1,0 +1,46 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+#problemForm {
+  display: none;
+  margin-top: 20px;
+}
+
+.problem-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.tag {
+  background: #eef;
+  padding: 2px 6px;
+  margin: 2px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.problem-img {
+  max-width: 100%;
+  max-height: 300px;
+  display: block;
+  margin-top: 10px;
+}
+
+.custom-file-label {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.custom-file-label:hover {
+  background-color: #0056b3;
+}
