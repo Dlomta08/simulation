@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Problemset</title>
+  <link rel="stylesheet" href="problemset.css">
+</head>
+<body>
+
+  <h1>ამოცანები</h1>
+
+  <button onclick="toggleForm()">➕ ამოცანის დამატება</button>
+
+  <div id="problemForm">
+
+  <label for="problemImage"><strong>📷 ატვირთეთ ამოცანა:</strong></label>
+  <input type="file" id="problemImage" accept="image/*"><br><br>
+
+  <label for="tags"><strong>🏷️ თემები (გამოყოფილი მძიმით):</strong></label>
+  <input type="text" id="tags" placeholder="მაგ. გეომეტრია, ალგებრა"><br><br>
+  <label for="difficulty"><strong>📊 სირთულე (5 ბალიანი სისტემა):</strong></label>
+  <select id="difficulty">
+    <option value=1>1</option>
+    <option value=2>2</option>
+    <option value=3 selected>3</option>
+    <option value=4>4</option>
+    <option value=5>5</option>
+  </select><br><br>
+
+  <button onclick="addProblem()">დამატება</button>
+</div>
+
+
+  <hr>
+ <button onclick="toggleFilter()">ამოცანების ფილტრი</button>
+
+<div id="filterSection" style="display:none; margin-top: 15px;">
+  <strong>სირთულის დიაპაზონი:</strong>
+  <select id="filterMinDifficulty">
+    <option value="1" selected>1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+  </select>
+  -
+  <select id="filterMaxDifficulty">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5" selected>5</option>
+  </select><br><br>
+  <label for="filterTags"><strong>გაფილტრეთ თემები (გამოყოფილი მძიმით):</strong></label>
+<input type="text" id="filterTags" placeholder="მაგ. ალგებრა, გეომეტრია" style="margin-left: 10px;">
+<br><br>
+
+
+  <button onclick="applyFilters()">გაფილტვრა</button>
+</div>
+
+
+
+  <div id="problemList"></div>
+
+  <script src="problemset.js"></script>
+</body>
+</html>
