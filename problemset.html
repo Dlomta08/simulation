@@ -4,12 +4,16 @@
   <meta charset="UTF-8">
   <title>Problemset</title>
   <link rel="stylesheet" href="problemset.css">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
-
+  <h2>ტესტის გადახედვა</h2>
+<div id="quizPreview" style="min-height:100px; border:1px solid #ccc; padding:10px;"></div>
+<button onclick="shuffleQuiz()">თანმიმდევრობის არევა</button>
+<button onclick="generateQuizPDF()">ტესტის შექმნა</button>
   <h1>ამოცანები</h1>
 
-  <button onclick="toggleForm()">➕ ამოცანის დამატება</button>
+  <button onclick="toggleForm()">ამოცანის დამატება</button>
 
   <div id="problemForm">
 
@@ -52,17 +56,15 @@
     <option value="5" selected>5</option>
   </select><br><br>
   <label for="filterTags"><strong>გაფილტრეთ თემები (გამოყოფილი მძიმით):</strong></label>
-<input type="text" id="filterTags" placeholder="მაგ. ალგებრა, გეომეტრია" style="margin-left: 10px;">
+<input type="text" id="filterTags" placeholder="მაგ. გეომეტრია, ალგებრა" style="margin-left: 10px;">
 <br><br>
 
 
   <button onclick="applyFilters()">გაფილტვრა</button>
 </div>
 
-
-
   <div id="problemList"></div>
-
+  
   <script src="problemset.js"></script>
 </body>
 </html>
