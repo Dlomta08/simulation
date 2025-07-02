@@ -25,7 +25,7 @@ with app.app_context():
 # Home route
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('start.html')
 
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
