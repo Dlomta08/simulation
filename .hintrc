@@ -3,24 +3,12 @@
     "development"
   ],
   "hints": {
+    "meta-viewport": "off",
+    "no-inline-styles": "off",
     "axe/name-role-value": [
       "default",
       {
         "link-name": "off"
-      }
-    ],
-    "meta-viewport": "off",
-    "no-inline-styles": "off",
-    "axe/forms": [
-      "default",
-      {
-        "label": "off"
-      }
-    ],
-    "axe/language": [
-      "default",
-      {
-        "html-has-lang": "off"
       }
     ]
   }
