@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, send_from_directory, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -26,6 +26,10 @@ with app.app_context():
 @app.route('/')
 def home():
     return render_template('start.html')
+
+@app.route("/index")
+def serve_index():
+    return send_from_directory(".", "index.html")
 
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
