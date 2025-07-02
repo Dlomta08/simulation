@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, jsonify, render_template, redirect, send_from_directory, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -25,7 +25,11 @@ with app.app_context():
 # Home route
 @app.route('/')
 def home():
-    return render_template('rest.html')
+    return render_template('start.html')
+
+@app.route("/index")
+def serve_index():
+    return send_from_directory(".", "index.html")
 
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
@@ -81,5 +85,7 @@ def list_users():
         } for u in users
     ])
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
