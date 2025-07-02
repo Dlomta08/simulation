@@ -27,7 +27,9 @@ with app.app_context():
 def home():
     return render_template('start.html')
 
-
+@app.route("/simulation/<path:filename>")
+def static_files(filename):
+    return send_from_directory("simulation", filename)
 
 
 # Register route
