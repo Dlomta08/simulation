@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, send_from_directory, url_for
+from flask import Flask, request, jsonify, redirect, send_from_directory, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -22,15 +22,15 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-# Home route
-@app.route('/')
-def home():
-    return render_template('start.html')
+# Home route serving index.html
+@app.route("/")
+def serve_index():
+    return send_from_directory(".", "index.html")
 
-@app.route("/simulation/<path:filename>")
-def static_files(filename):
-    return send_from_directory("simulation", filename)
-
+# Serve all other static files from project root
+#@app.route("/<path:filename>")
+#def static_files(filename):
+ #   return send_from_directory(".", filename)
 
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
@@ -51,10 +51,10 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        return redirect(url_for('home'))
+        return redirect(url_for('serve_index'))
 
-    return render_template('register.html')
-    
+    return send_from_directory(".", "register.html")
+
 # Login route
 @app.route('/login', methods=['POST'])
 def login():
@@ -73,7 +73,7 @@ def login():
 
     return f"Welcome, {user.username}! You are logged in as {user.role}."
 
-# List users (for checking registrations)
+# List users
 @app.route('/users')
 def list_users():
     users = User.query.all()
