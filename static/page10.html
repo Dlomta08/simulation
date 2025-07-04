@@ -22,7 +22,7 @@
     const quizzesPerYear = 5;
     const yearTable = document.getElementById("yearTable");
     for (let y = endYear; y >= startYear; y--) {
-      const academicYear = `${y}/${(y + 1).toString().slice(-2)}`; 
+      const academicYear = `${y}/${(y + 1).toString().slice(-2)}`;
       const row = document.createElement("div");
       row.className = "year-row";
       const yearLabel = document.createElement("div");
@@ -33,7 +33,7 @@
       for (let q = 1; q <= quizzesPerYear; q++) {
         const btn = document.createElement("button");
         btn.textContent = q;
-        btn.onclick = () => handleQuizClick(academicYear, q, classNum);
+        btn.onclick = () => handleQuizClick(academicYear, q, classNum, "physics");
         btnGroup.appendChild(btn);
       }
       row.appendChild(yearLabel);
@@ -44,9 +44,9 @@
   </div>
 </div>
   <script>
-    function handleQuizClick(year, number, classNum) {
+    function handleQuizClick(year, number, classNum, category) {
       const yearFolder = year.replace("/", "-");
-      const url = `quiz.html?class=${classNum}&year=${yearFolder}&number=${number}`;
+      const url = `quiz.html?class=${classNum}&year=${yearFolder}&number=${number}&category=${category}`;
       window.location.href = url;
     }
   </script>

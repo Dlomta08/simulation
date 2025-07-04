@@ -42,6 +42,7 @@
   <div id="result"></div>
   <script>
     const params = new URLSearchParams(window.location.search);
+    const category = params.get("category");
     const classNum = params.get("class");
     const year = params.get("year");
     const number = params.get("number");
@@ -50,7 +51,7 @@
       const title = `მათემატიკის ${numshow} ქვიზი — ${classNum} კლასი, ${year} წელი.`;
       document.getElementById("quiz-title").textContent = title;
       const script = document.createElement("script");
-      script.src = `class-${classNum}/${year}/quiz-${number}.js`;
+      script.src = `${category}/class-${classNum}/${year}/quiz-${number}.js`;
       script.onload = () => {
         if (typeof quizData !== "undefined") {
           document.getElementById("mode-selection").style.display = "block";
