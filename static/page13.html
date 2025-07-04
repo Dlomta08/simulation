@@ -16,7 +16,7 @@
   <div class="container">
   <div class="year-table" id="yearTable">
     <script>
-    const classNum = 9;
+    const classNum = 10;
     const startYear = 2020;
     const endYear = 2024;
     const quizzesPerYear = 5;
@@ -33,7 +33,7 @@
       for (let q = 1; q <= quizzesPerYear; q++) {
         const btn = document.createElement("button");
         btn.textContent = q;
-        btn.onclick = () => handleQuizClick(academicYear, q, classNum, "math");
+        btn.onclick = () => handleQuizClick(academicYear, q, classNum, "physics");
         btnGroup.appendChild(btn);
       }
       row.appendChild(yearLabel);
