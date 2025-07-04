@@ -8,7 +8,7 @@ const quizData = [
   },
   // 2
   {
-    question: "გამოთვალეთ $(\\sin 17° + \\cos 17°)^2 + (\\sin 17° − \\cos 17°)^2$.",
+    question: "გამოთვალეთ $(\\sin 17 + \\cos 17)^2 + (\\sin 17 − \\cos 17)^2$.",
     options: ["$0$", "$1$", "$2$", "$3$", "$4$", "$5$"],
     correct: 2,
     tags: []
@@ -86,14 +86,14 @@ const quizData = [
   },
   // 13
   {
-    question: "გამოთვალეთ $y = \\sin \\frac{2x}{3} + \\sin \\frac{x}{2} + \\sin \\frac{7x}{12}$ და $y = \\sin \\frac{x}{5}$ ფუნქციების საერთო უმცირესი დადებითი პერიოდი.",
+    question: "გამოთვალეთ $y = \\frac{\\sin \\frac{2x}{3} + \\sin \\frac{x}{2}}{\\sin \\frac{7x}{12}}$ და $y = \\sin \\frac{x}{5}$ ფუნქციების საერთო უმცირესი დადებითი პერიოდი.",
     options: ["$2\\pi$", "$4\\pi$", "$12\\pi$", "$60\\pi$", "$120\\pi$", "$80\\pi$"],
     correct: 4,
     tags: []
   },
     // 14
   {
-    question: "მართი პრიზმის ფუძეა $2$სმ რადიუსის მქონე წრეწირზე შემოხაზული ტრაპეცია, რომლის შუახაზია 6 სმ, ხოლო პრიზმის სიმაღლეა 6 სმ. იპოვეთ პრიზმის ზედაპირის ფართობი.",
+    question: "მართი პრიზმის ფუძეა $2$სმ რადიუსის მქონე წრეწირზე შემოხაზული ტრაპეცია, რომლის შუახაზია $6$სმ, ხოლო პრიზმის სიმაღლეა $6$სმ. იპოვეთ პრიზმის ზედაპირის ფართობი.",
     options: ["$192$სმ$²$", "$144$სმ$²$", "$124$სმ$²$", "$216$სმ$²$", "$96$სმ$²$", "$92$სმ$²$"],
     correct: 0,
     tags: []
@@ -107,7 +107,7 @@ const quizData = [
   },
   // 16
   {
-    question: "მოცემული $I$. $\\sin \\alpha + \\cos \\alpha \\leq \\sqrt{2}$, $II$. $\\sin \\alpha + \\cos \\alpha \\geq \\sqrt{2} \\sin 2\\alpha$, $III$. $\\sin \\alpha + \\cos \\alpha \\leq \\sqrt{2} \\cos 2\\alpha$, $IV$. $\\sin \\alpha + \\cos \\alpha \\leq 2 \\tan \\alpha$. ოთხი უტოლობიდან რომელი ჭეშმარიტია ნებისმიერი $\\alpha \\in (0; \\frac{\\pi}{2})$-თვის?",
+    question: "მოცემული $I$. $\\sin \\alpha + \\cos \\alpha \\leq \\sqrt{2}$, $II$. $\\sin \\alpha + \\cos \\alpha \\geq \\sqrt{2\\sin 2\\alpha}$, $III$. $\\sin \\alpha + \\cos \\alpha \\leq \\sqrt{2\\cos 2\\alpha}$, $IV$. $\\sin \\alpha + \\cos \\alpha \\leq 2 \\tan \\alpha$. ოთხი უტოლობიდან რომელი ჭეშმარიტია ნებისმიერი $\\alpha \\in (0; \\frac{\\pi}{2})$-თვის?",
     options: ["მხოლოდ $I$", "მხოლოდ $II$", "მხოლოდ $I$ და $II$", "მხოლოდ $I$ და $III$", "მხოლოდ $I$ და $IV$", "ოთხივე"],
     correct: 2,
     tags: []
