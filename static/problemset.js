@@ -20,8 +20,7 @@ function toggleFilter() {
   }
 }
 
-let problems = [];
-
+let problems = [], quizPreviewProblems = [];
 window.onload = () => {
   loadProblems();
   Sortable.create(document.getElementById('quizPreview'), {
@@ -172,92 +171,94 @@ function applyFilters() {
   });
 }
 
-// Render quiz preview from selected problems
 function renderQuizPreview() {
   const preview = document.getElementById('quizPreview');
-  preview.innerHTML = '';
-
   const selected = problems.filter(p => p.element.querySelector('.quiz-select')?.checked);
-  selected.forEach((p, i) => {
+
+  // Add new selections to quizPreviewProblems if not already added
+  selected.forEach(p => {
+    if (!quizPreviewProblems.includes(p)) {
+      quizPreviewProblems.push(p);
+    }
+  });
+
+  // Remove deselected problems
+  quizPreviewProblems = quizPreviewProblems.filter(p =>
+    p.element.querySelector('.quiz-select')?.checked
+  );
+
+  // Now render preview based on quizPreviewProblems array
+  preview.innerHTML = '';
+  quizPreviewProblems.forEach((p, i) => {
     const div = document.createElement('div');
     div.className = 'quiz-preview-item';
     div.style.border = '1px solid #aaa';
     div.style.padding = '8px';
     div.style.marginBottom = '5px';
     div.style.cursor = 'move';
-    div.dataset.index = problems.indexOf(p);
 
-    // Create label
+    div.dataset.image = p.imageDataUrl;
+    div.dataset.difficulty = p.difficulty;
+    div.dataset.tags = JSON.stringify(p.tags);
+
     const label = document.createElement('div');
     label.className = 'label';
-    label.innerHTML = `<strong> ამოცანა N${i + 1}:</strong> სირთულე: ${p.difficulty} – თემები: ${p.tags.join(', ')}`;
+    label.innerHTML = `<strong>ამოცანა N${i + 1}:</strong> სირთულე: ${p.difficulty} – თემები: ${p.tags.join(', ')}`;
 
-    // Create image (hidden by default)
     const img = document.createElement('img');
     img.src = p.imageDataUrl;
     img.style.display = 'none';
     img.style.maxWidth = '100%';
     img.style.marginTop = '10px';
 
-    // Toggle image on click
     div.addEventListener('click', () => {
       img.style.display = img.style.display === 'none' ? 'block' : 'none';
     });
 
-    // Append label and image
     div.appendChild(label);
     div.appendChild(img);
     preview.appendChild(div);
   });
-
-  refreshQuizPreview();
 }
-
 
 function refreshQuizPreview() {
   const preview = document.getElementById('quizPreview');
   const items = Array.from(preview.children);
 
   items.forEach((item, i) => {
-    const index = item.dataset.index;
-    const problem = problems[index];
+    const difficulty = item.dataset.difficulty;
+    const tags = JSON.parse(item.dataset.tags || "[]");
     const label = item.querySelector(".label");
     if (label) {
-      label.innerHTML = `<strong>ამოცანა N${i + 1}:</strong> სირთულე: ${problem.difficulty} – თემები: ${problem.tags.join(', ')}`;
+      label.innerHTML = `<strong>ამოცანა N${i + 1}:</strong> სირთულე: ${difficulty} – თემები: ${tags.join(', ')}`;
     }
   });
 }
 
-// Shuffle quiz preview items randomly
 function shuffleQuiz() {
   const preview = document.getElementById('quizPreview');
-  const items = Array.from(preview.children);
-  for (let i = items.length - 1; i > 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
-    [items[i], items[j]] = [items[j], items[i]];
+  for (let i = quizPreviewProblems.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [quizPreviewProblems[i], quizPreviewProblems[j]] = [quizPreviewProblems[j], quizPreviewProblems[i]];
   }
-  preview.innerHTML = '';
-  items.forEach(item => preview.appendChild(item));
-  refreshQuizPreview(); // Just update labels
+  renderQuizPreview(); 
 }
 
-
-// Generate quiz PDF from preview order
 function generateQuizPDF() {
-  const preview = document.getElementById('quizPreview');
-  if(preview.children.length === 0) {
+  if (quizPreviewProblems.length === 0) {
     alert("No problems in quiz preview");
     return;
   }
-  const orderedProblems = [];
-  for (const child of preview.children) {
-    const idx = parseInt(child.dataset.index, 10);
-    if (!isNaN(idx)) {
-      orderedProblems.push(problems[idx]);
-    }
-  }
+
+  const orderedProblems = quizPreviewProblems.map(p => ({
+    imageDataUrl: p.imageDataUrl,
+    difficulty: p.difficulty,
+    tags: p.tags
+  }));
+
   openQuizWindow(orderedProblems);
 }
+
 
 // Open quiz window and display problems with PDF download button
 function openQuizWindow(selectedProblems) {
@@ -314,5 +315,5 @@ function openQuizWindow(selectedProblems) {
 document.addEventListener('change', e => {
   if (e.target.classList.contains('quiz-select')) {
     renderQuizPreview();
-  }
+  } 
 });
