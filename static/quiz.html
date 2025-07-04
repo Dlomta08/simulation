@@ -48,7 +48,8 @@
     const number = params.get("number");
     const numshow = (number == 1 ? '1-ელი' : `მე-${number}`);
     if (classNum && year && number) {
-      const title = `მათემატიკის ${numshow} ქვიზი — ${classNum} კლასი, ${year} წელი.`;
+      if(category == "math")  title = `მათემატიკის ${numshow} ქვიზი — ${classNum} კლასი, ${year} წელი.`;
+      else title = `ფიზიკის ${numshow} ქვიზი — ${classNum} კლასი, ${year} წელი.`;
       document.getElementById("quiz-title").textContent = title;
       const script = document.createElement("script");
       script.src = `${category}/class-${classNum}/${year}/quiz-${number}.js`;
