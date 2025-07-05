@@ -38,7 +38,7 @@ function renderQuiz(){
   quizData.forEach((q, i) => {
     const fieldset = document.createElement("fieldset");
       
-
+    // intro
     if (quizData.length > 0 && typeof quizData[i].intro === "string" && quizData[i].intro.trim() !== "") {
         const introDiv = document.createElement("div");
         introDiv.className = "introduction";
@@ -53,8 +53,7 @@ function renderQuiz(){
       warnDiv.innerText = q.warning;
       fieldset.appendChild(warnDiv);
     }
-
-
+    
     const legend = document.createElement("legend");
     legend.innerHTML = `<strong>${i + 1}.</strong><br>${q.question}`;
     fieldset.appendChild(legend);
