@@ -39,10 +39,10 @@ function renderQuiz(){
     const fieldset = document.createElement("fieldset");
       
 
-    if (i == 0 && quizData.length > 0 && typeof quizData[0].intro === "string" && quizData[0].intro.trim() !== "") {
+    if (quizData.length > 0 && typeof quizData[i].intro === "string" && quizData[i].intro.trim() !== "") {
         const introDiv = document.createElement("div");
         introDiv.className = "introduction";
-        introDiv.innerHTML = quizData[0].intro;
+        introDiv.innerHTML = quizData[i].intro;
         form.appendChild(introDiv);
         if (window.MathJax) MathJax.typeset();
       }
