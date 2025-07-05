@@ -39,6 +39,7 @@ const quizData = [
 
   //4
   {
+    warning: "სამი პასუხია ჩათვლილი",
     question: "ჩამოთვლილთაგან რომელია ლუწი? \ $f(x) = \\sin x \\cdot \\cos x \\cdot x^3;$ \ $g(x) = \\sqrt{\\cos x};$ \ $h(x) = \ tg x \\cdot \ ctg x.$",
     options: [
       "$f(x)$ და $g(x)$",
