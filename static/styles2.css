@@ -98,3 +98,20 @@ body.dark-mode .quiz-buttons button:hover {
 #toggle-dark:hover {
   color: rgb(0, 0, 0);    /* change color on hover */
 }
+#account-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+
+#account-info a {
+  margin-left: 10px;
+  text-decoration: none;
+  color: #007bff;
+}
+
+#account-info a:hover {
+  text-decoration: underline;
+}

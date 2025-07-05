@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profile</title>
+  <link rel="stylesheet" href="../static/profile.css" />
+</head>
+<body>
+  <div id="account-info">
+    Welcome, <strong>{{ user.username }}</strong>!
+    <a href="/logout">Log out</a>
+  </div>
+
+  {% if user.avatar_filename %}
+    <img src="/static/uploads/{{ user.avatar_filename }}" alt="Avatar"
+         style="width:150px; height:150px; border-radius:50%;">
+  {% else %}
+    <p>No avatar uploaded.</p>
+  {% endif %}
+
+  <h1>Profile</h1>
+  <ul>
+    <li><strong>Username:</strong> {{ user.username }}</li>
+    <li><strong>Email:</strong> {{ user.email }}</li>
+    <li><strong>Role:</strong> {{ user.role }}</li>
+  </ul>
+
+  <p><a href="/edit_profile">Edit Profile</a></p>
+  <p><a href="/upload_avatar">Upload Avatar (Optional)</a></p>
+  <p><a href="/change_password">Change Password</a></p>
+</body>
+</html>

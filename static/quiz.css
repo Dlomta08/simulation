@@ -83,4 +83,20 @@ body.dark-mode .mode-selections button:hover {
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
   
+  #account-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
 
+#account-info a {
+  margin-left: 10px;
+  text-decoration: none;
+  color: #007bff;
+}
+
+#account-info a:hover {
+  text-decoration: underline;
+}
