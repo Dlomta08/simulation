@@ -43,8 +43,7 @@ button {
 }
 
 .introduction {
-  background: linear-gradient(to right, #f0f8ff, #e6f7ff);
-  border-left: 6px solid #1a73e8;
+  background-color: #ffffff; /* white background for clean look */  border-left: 6px solid #1a73e8;
   padding: 16px 20px;
   margin-bottom: 16px;
   border-radius: 8px;
