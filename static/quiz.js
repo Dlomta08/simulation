@@ -37,7 +37,15 @@ function renderQuiz(){
   form.innerHTML = "";
   quizData.forEach((q, i) => {
     const fieldset = document.createElement("fieldset");
+      
 
+    if (i == 0 && quizData.length > 0 && typeof quizData[0].intro === "string" && quizData[0].intro.trim() !== "") {
+        const introDiv = document.createElement("div");
+        introDiv.className = "introduction";
+        introDiv.innerHTML = quizData[0].intro;
+        form.appendChild(introDiv);
+        if (window.MathJax) MathJax.typeset();
+      }
 
     if (typeof q.warning === "string" && q.warning.trim() !== "") {
       const warnDiv = document.createElement("div");
