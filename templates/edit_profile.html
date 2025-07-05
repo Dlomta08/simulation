@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+  <div id="account-info">
+    Welcome, <strong>{{ user.username }}</strong>!
+    <a href="/logout">Log out</a>
+  </div>
+
+  <h1>Edit Profile</h1>
+
+  <form method="POST">
+    <label>Email:</label><br>
+    <input type="email" name="email" value="{{ user.email }}"><br><br>
+
+    <label>Username:</label><br>
+    <input type="text" name="username" value="{{ user.username }}"><br><br>
+
+    <button type="submit">Save Changes</button>
+  </form>
+
+  <p><a href="/profile">Back to Profile</a></p>
+</body>
+</html>
