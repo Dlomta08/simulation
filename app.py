@@ -9,9 +9,10 @@ from flask_migrate import Migrate
 app = Flask(__name__)
 app.secret_key = "super_secret_key_123"
 
-
+UPLOAD_FOLDER = os.path.join("static", "uploads")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 # PostgreSQL connection string
-
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 # Make sure you replace this with your actual connection string
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:gzeLeuznnVNTAVFLWPIXEKlhYYgNlkAj@interchange.proxy.rlwy.net:47942/railway'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
