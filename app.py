@@ -13,7 +13,7 @@ app.secret_key = "super_secret_key_123"
 # PostgreSQL connection string
 
 # Make sure you replace this with your actual connection string
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:HxUppyuPWngdmEvaryagXFjDqNFhuuYh@switchback.proxy.rlwy.net:51020/railway'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:gzeLeuznnVNTAVFLWPIXEKlhYYgNlkAj@interchange.proxy.rlwy.net:47942/railway'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
