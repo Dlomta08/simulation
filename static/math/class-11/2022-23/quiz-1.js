@@ -37,7 +37,7 @@ const quizData = [
   },
   {
     "question": "რომელ მეოთხედში მდებარეობს $f(x) = 5^{-|x|} - 5$ ფუნქციის გრაფიკი?",
-    "options": ["$I$", "$I-II$", "$I-II-III$", "$III-IV$", "$II-IV$", "$I-II-III-IV$"],
+    "options": ["I", "I-II", "I-II-III", "III-IV", "II-IV", "I-II-III-IV"],
     "correct": 3,
     "tags": []
   },

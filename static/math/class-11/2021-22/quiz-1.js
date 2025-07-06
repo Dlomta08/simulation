@@ -13,7 +13,7 @@ const quizData = [
         },
         {
             question: "რომელ მეოთხედშია $f(x) = \\log_{x^9}(x^2)$ ფუნქციის გრაფიკი?",
-            options: ["$II$", "$III$", "$I-II$", "$I$", "$III-IV$", "$II-IV$"],
+            options: ["II", "III", "I-II", "I", "III-IV", "II-IV"],
             correct: 3,
             tag: "functions"
         },

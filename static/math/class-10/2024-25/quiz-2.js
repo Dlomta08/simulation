@@ -107,8 +107,8 @@ const quizData = [
   },
   // 16
   {
-    question: "მოცემული $I$. $\\sin \\alpha + \\cos \\alpha \\leq \\sqrt{2}$, $II$. $\\sin \\alpha + \\cos \\alpha \\geq \\sqrt{2\\sin 2\\alpha}$, $III$. $\\sin \\alpha + \\cos \\alpha \\leq \\sqrt{2\\cos 2\\alpha}$, $IV$. $\\sin \\alpha + \\cos \\alpha \\leq 2 \\tan \\alpha$. ოთხი უტოლობიდან რომელი ჭეშმარიტია ნებისმიერი $\\alpha \\in (0; \\frac{\\pi}{2})$-თვის?",
-    options: ["მხოლოდ $I$", "მხოლოდ $II$", "მხოლოდ $I$ და $II$", "მხოლოდ $I$ და $III$", "მხოლოდ $I$ და $IV$", "ოთხივე"],
+    question: "მოცემული I. $\\sin \\alpha + \\cos \\alpha \\leq \\sqrt{2}$, II. $\\sin \\alpha + \\cos \\alpha \\geq \\sqrt{2\\sin 2\\alpha}$, III. $\\sin \\alpha + \\cos \\alpha \\leq \\sqrt{2\\cos 2\\alpha}$, IV. $\\sin \\alpha + \\cos \\alpha \\leq 2 \\tan \\alpha$. ოთხი უტოლობიდან რომელი ჭეშმარიტია ნებისმიერი $\\alpha \\in (0; \\frac{\\pi}{2})$-თვის?",
+    options: ["მხოლოდ I", "მხოლოდ II", "მხოლოდ I და II", "მხოლოდ I და III", "მხოლოდ I და IV", "ოთხივე"],
     correct: 2,
     tags: []
   },
@@ -156,8 +156,8 @@ const quizData = [
   },
   // 23
   {
-    question: "რომელი მოცემული ოთხი ფუნქციიდან — $I$. $f(x) = \\tan x$; $II$. $f(x) = \\sin^2 x$; III. $f(x) = \\sin x \\cos x$; $IV$. $f(x) = x^2 + 3x$ — ფუნქციისთვის მოიძებნება ისეთი $p(x)$ და $q(x)$ ფუნქციები, რომ შესრულდეს ტოლობა $f(x) = p(x) \\sin x + q(x) \\cos x$ ($x \\neq \\frac{\\pi}{2} \\cdot k$, $k \\in \\mathbb{Z}$)?",
-    options: ["მხოლოდ $I$-სთვის", "მხოლოდ $II$-სთვის", "მხოლოდ $III$-სთვის", "მხოლოდ $IV$-სთვის", "მხოლოდ $II$ და $III$-სთვის", "ოთხივესთვის"],
+    question: "რომელი მოცემული ოთხი ფუნქციიდან — I. $f(x) = \\tan x$; II. $f(x) = \\sin^2 x$; III. $f(x) = \\sin x \\cos x$; IV. $f(x) = x^2 + 3x$ — ფუნქციისთვის მოიძებნება ისეთი $p(x)$ და $q(x)$ ფუნქციები, რომ შესრულდეს ტოლობა $f(x) = p(x) \\sin x + q(x) \\cos x$ ($x \\neq \\frac{\\pi}{2} \\cdot k$, $k \\in \\mathbb{Z}$)?",
+    options: ["მხოლოდ I-სთვის", "მხოლოდ II-სთვის", "მხოლოდ III-სთვის", "მხოლოდ IV-სთვის", "მხოლოდ II და III-სთვის", "ოთხივესთვის"],
     correct: 5,
     tags: []
   },
