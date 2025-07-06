@@ -50,7 +50,6 @@
         <option value="მოსწავლე" {% if user.role == "მოსწავლე" %}selected{% endif %}>მოსწავლე</option>
         <option value="მასწავლებელი" {% if user.role == "მასწავლებელი" %}selected{% endif %}>მასწავლებელი</option>
         <option value="admin" {% if user.role == "admin" %}selected{% endif %}>Admin</option>
-        <option value="გოგიჩა" {% if user.role == "გოგიჩა" %}selected{% endif %}>გოგიჩა</option>
       </select>
       <button type="submit">Update Role</button>
     </form>

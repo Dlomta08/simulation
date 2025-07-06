@@ -29,6 +29,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
     role = db.Column(db.String(20), default='მოსწავლე')
+    avatar_filename = db.Column(db.String(255), nullable=True)
 
 class Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -345,7 +346,7 @@ def change_user_role(user_id):
     user = User.query.get_or_404(user_id)
     new_role = request.form.get("new_role")
 
-    if new_role not in ["მოსწავლე", "მასწავლებელი", "admin", "გოგიჩა"]:
+    if new_role not in ["მოსწავლე", "მასწავლებელი", "admin"]:
         return "Invalid role.", 400
 
     user.role = new_role
