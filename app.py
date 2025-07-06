@@ -28,7 +28,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
-    role = db.Column(db.String(20), default='member')
+    role = db.Column(db.String(20), default='მოსწავლე')
 
 class Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -63,18 +63,26 @@ def register():
         username = request.form["username"]
         email = request.form["email"]
         password = request.form["password"]
+        requested_role = request.form["role"]
 
         if User.query.filter((User.username == username) | (User.email == email)).first():
             return "Username or email already exists.", 400
 
+        # If requested role is teacher, save as pending_teacher
+        if requested_role == "მასწავლებელი":
+            role = "pending_teacher"
+        else:
+            role = requested_role
+
         hashed_pw = generate_password_hash(password, method="pbkdf2:sha256")
-        user = User(username=username, email=email, password_hash=hashed_pw)
+        user = User(username=username, email=email, password_hash=hashed_pw, role=role)
         db.session.add(user)
         db.session.commit()
 
         return redirect(url_for("serve_index"))
 
     return render_template("register.html")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -104,6 +112,9 @@ def whoami():
 def upload_problem():
     if "image" not in request.files:
         return "No image file.", 400
+    
+    if session["role"] != "მასწავლებელი" and session["role"] != "admin":
+        return "Permission denied.", 403
 
     file = request.files["image"]
     if file.filename == "" or not allowed_file(file.filename):
@@ -144,6 +155,16 @@ def uploaded_file(filename):
 
 @app.route("/api/delete_problem/<int:problem_id>", methods=["POST"])
 def delete_problem(problem_id):
+    if "username" not in session:
+        return "ავტორიზაცია საჭიროა", 403
+    
+    if session["role"] not in ["მასწავლებელი", "admin"]:
+        return "Permission denied.", 403
+    
+    user = User.query.filter_by(username=session["username"]).first()
+    if user.role not in ["admin"]:
+        return "უფლება არ გქონიათ", 403
+
     problem = Problem.query.get(problem_id)
     if not problem:
         return "Problem not found.", 404
@@ -152,11 +173,182 @@ def delete_problem(problem_id):
     try:
         os.remove(os.path.join(UPLOAD_FOLDER, problem.image_filename))
     except Exception:
-        pass  # Ignore file deletion errors
+        pass
 
     db.session.delete(problem)
     db.session.commit()
     return "Problem deleted."
+
+@app.route("/profile")
+def profile():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found.", 404
+
+    return render_template("profile.html", user=user)
+
+
+@app.route("/edit_profile", methods=["GET", "POST"])
+def edit_profile():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found.", 404
+
+    if request.method == "POST":
+        new_email = request.form.get("email")
+        new_username = request.form.get("username")
+
+        # Optional: Validate inputs here
+
+        if new_email:
+            user.email = new_email
+
+        if new_username:
+            # Check if username is taken
+            existing = User.query.filter(User.username == new_username).first()
+            if existing and existing.id != user.id:
+                return "Username already taken.", 400
+            user.username = new_username
+            # Update the session username so it shows up right
+            session["username"] = new_username
+
+        db.session.commit()
+        return redirect(url_for("profile"))
+
+    return render_template("edit_profile.html", user=user)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+UPLOAD_FOLDER = os.path.join("static", "uploads")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
+@app.route("/upload_avatar", methods=["GET", "POST"])
+def upload_avatar():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found.", 404
+
+    if request.method == "POST":
+        if "avatar" not in request.files:
+            return "No file part.", 400
+
+        file = request.files["avatar"]
+
+        if file.filename == "":
+            return "No selected file.", 400
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(filepath)
+
+            user.avatar_filename = filename
+            db.session.commit()
+            return redirect(url_for("profile"))
+        else:
+            return "Invalid file type.", 400
+
+    return render_template("upload_avatar.html")
+
+@app.route("/change_password", methods=["GET", "POST"])
+def change_password():
+    if "username" not in session:
+        return redirect(url_for("login"))
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found.", 404
+
+    if request.method == "POST":
+        current_password = request.form.get("current_password")
+        new_password = request.form.get("new_password")
+
+        if not current_password or not new_password:
+            return "All fields are required.", 400
+
+        if not check_password_hash(user.password_hash, current_password):
+            return "Incorrect current password.", 400
+
+        user.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
+        db.session.commit()
+        return redirect(url_for("profile"))
+
+    return render_template("change_password.html")
+
+
+@app.route("/admin/pending_teachers")
+def pending_teachers():
+    if "username" not in session:
+        return "Not authorized.", 403
+
+    current_user = User.query.filter_by(username=session["username"]).first()
+    if not current_user or current_user.role != "admin":
+        return "Forbidden.", 403
+
+    pending = User.query.filter_by(role="pending_teacher").all()
+    return render_template("pending_teachers.html", users=pending)
+
+@app.route("/admin/approve_teacher", methods=["POST"])
+def approve_teacher():
+    if "username" not in session:
+        return "Not authorized.", 403
+
+    current_user = User.query.filter_by(username=session["username"]).first()
+    if not current_user or current_user.role != "admin":
+        return "Forbidden.", 403
+
+    user_id = request.form.get("user_id")
+    user = User.query.get(user_id)
+    if not user:
+        return "User not found.", 404
+
+    user.role = "teacher"
+    db.session.commit()
+    return redirect(url_for("pending_teachers"))
+
+
+@app.route("/users_list")
+def users_list():
+    users = User.query.all()
+    return render_template("users_list.html", users=users)
+
+@app.route("/view_user_profile/<int:user_id>")
+def view_user_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    # Determine current user
+    current_user = None
+    if "username" in session:
+        current_user = User.query.filter_by(username=session["username"]).first()
+    return render_template("view_user_profile.html", user=user, current_user=current_user)
+
+@app.route("/change_user_role/<int:user_id>", methods=["POST"])
+def change_user_role(user_id):
+    if "username" not in session:
+        return "Unauthorized", 403
+    current_user = User.query.filter_by(username=session["username"]).first()
+    if not current_user or current_user.role != "admin":
+        return "Forbidden", 403
+
+    user = User.query.get_or_404(user_id)
+    new_role = request.form.get("new_role")
+
+    if new_role not in ["მოსწავლე", "მასწავლებელი", "admin"]:
+        return "Invalid role.", 400
+
+    user.role = new_role
+    db.session.commit()
+    return redirect(url_for("view_user_profile", user_id=user.id))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
