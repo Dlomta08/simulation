@@ -169,7 +169,7 @@ const quizData = [
   },
   // Question 21
   {
-    image: "class-10/images/image1.png",
+    image: "static/math/class-10/images/image1.png",
     question: "ნახაზზე კუთხის წვეროზე და გვერდებზე მონიშნულია $6$ წერტილი. რამდენი განსხვავებული სამკუთხედი არსებობს, რომელთა წვეროები მონიშნული წერტილებია?",
     options: ["$9$", "$18$", "$15$", "$6$", "$20$", "$10$"],
     correct: 2,
