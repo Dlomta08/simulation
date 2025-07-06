@@ -130,7 +130,7 @@ const quizData = [
   {
     //ფოტომასალა აქვს
     question: `$ABC$ სამკუთხედში $\\angle C=90^\\circ$, $\\angle B=\\beta$. $BC$ მონაკვეთზე აღებულია $D$ წერტილი ისე, რომ $BD = m$ და $\\angle ADC = \\alpha$, იპოვეთ $AC$ მონაკვეთის სიგრძე თუ $\\tan(\\alpha)=\\frac{2}{3}$, $\\tan(\\beta)=\\frac{1}{4}$.`,
-    image:   "class-8/images/t.jpg.png",
+    image:   "math/class-8/images/t.jpg.png",
   
     options: ["$\\frac{m}{3}$", "$\\frac{2m}{5}$", "$\\frac{2m}{3}$", "$\\frac{3m}{8}$", "$\\frac{m}{7}$", "$\\frac{3m}{5}$"],
     correct: 1,
