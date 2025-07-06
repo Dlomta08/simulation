@@ -5,73 +5,72 @@
   <title>Problemset</title>
   <link rel="stylesheet" href="problemset.css">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <script >
+  <script>
     if (localStorage.getItem('theme') === 'dark') {
-    document.documentElement.classList.add('dark-mode');
-  }
+      document.documentElement.classList.add('dark-mode');
+    }
   </script>
 </head>
 <body>
   <button id="toggle-dark">🌙</button>
   <div id="account-info"></div>
+
   <h2>ტესტის გადახედვა</h2>
-<div id="quizPreview" style="min-height:100px; border:1px solid #ccc; padding:10px;"></div>
-<button onclick="shuffleQuiz()">თანმიმდევრობის არევა</button>
-<button onclick="generateQuizPDF()">ტესტის შექმნა</button>
+  <div id="quizPreview" style="min-height:100px; border:1px solid #ccc; padding:10px;"></div>
+  <button onclick="shuffleQuiz()">თანმიმდევრობის არევა</button>
+  <button onclick="generateQuizPDF()">ტესტის შექმნა</button>
+  
   <h1>ამოცანები</h1>
 
   <button onclick="toggleForm()">ამოცანის დამატება</button>
+  <button onclick="deleteProblem()">ამოცანის წაშლა</button> <!-- NEW DELETE ALL BUTTON -->
 
   <div id="problemForm">
+    <label for="problemImage"><strong>📷 ატვირთეთ ამოცანა:</strong></label>
+    <input type="file" id="problemImage" accept="image/*"><br><br>
 
-  <label for="problemImage"><strong>📷 ატვირთეთ ამოცანა:</strong></label>
-  <input type="file" id="problemImage" accept="image/*"><br><br>
+    <label for="tags"><strong>🏷️ თემები (გამოყოფილი მძიმით):</strong></label>
+    <input type="text" id="tags" placeholder="მაგ. გეომეტრია, ალგებრა"><br><br>
 
-  <label for="tags"><strong>🏷️ თემები (გამოყოფილი მძიმით):</strong></label>
-  <input type="text" id="tags" placeholder="მაგ. გეომეტრია, ალგებრა"><br><br>
-  <label for="difficulty"><strong>📊 სირთულე (5 ბალიანი სისტემა):</strong></label>
-  <select id="difficulty">
-    <option value=1>1</option>
-    <option value=2>2</option>
-    <option value=3 selected>3</option>
-    <option value=4>4</option>
-    <option value=5>5</option>
-  </select><br><br>
+    <label for="difficulty"><strong>📊 სირთულე (5 ბალიანი სისტემა):</strong></label>
+    <select id="difficulty">
+      <option value=1>1</option>
+      <option value=2>2</option>
+      <option value=3 selected>3</option>
+      <option value=4>4</option>
+      <option value=5>5</option>
+    </select><br><br>
 
-  <button onclick="addProblem()">დამატება</button>
-</div>
-
+    <button onclick="addProblem()">დამატება</button>
+  </div>
 
   <hr>
- <button onclick="toggleFilter()">ამოცანების ფილტრი</button>
-
-<div id="filterSection" style="display:none; margin-top: 15px;">
-  <strong>სირთულის დიაპაზონი:</strong>
-  <select id="filterMinDifficulty">
-    <option value="1" selected>1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-  </select>
-  -
-  <select id="filterMaxDifficulty">
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5" selected>5</option>
-  </select><br><br>
-  <label for="filterTags"><strong>გაფილტრეთ თემები (გამოყოფილი მძიმით):</strong></label>
-<input type="text" id="filterTags" placeholder="მაგ. გეომეტრია, ალგებრა" style="margin-left: 10px;">
-<br><br>
-
-
-  <button onclick="applyFilters()">გაფილტვრა</button>
-</div>
+  <button onclick="toggleFilter()">ამოცანების ფილტრი</button>
+  <div id="filterSection" style="display:none; margin-top: 15px;">
+    <strong>სირთულის დიაპაზონი:</strong>
+    <select id="filterMinDifficulty">
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </select>
+    -
+    <select id="filterMaxDifficulty">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5" selected>5</option>
+    </select><br><br>
+    <label for="filterTags"><strong>გაფილტრეთ თემები (გამოყოფილი მძიმით):</strong></label>
+    <input type="text" id="filterTags" placeholder="მაგ. გეომეტრია, ალგებრა" style="margin-left: 10px;">
+    <br><br>
+    <button onclick="applyFilters()">გაფილტვრა</button>
+  </div>
 
   <div id="problemList"></div>
-  
+
   <script src="problemset.js"></script>
   <script src="darkmode.js"></script>
   <script src="account.js"></script>
