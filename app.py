@@ -95,7 +95,9 @@ def login():
             return "Invalid credentials.", 400
 
         session["username"] = user.username
+        session["role"] = user.role
         return redirect(url_for("serve_index"))
+
 
     return render_template("login.html")
 
