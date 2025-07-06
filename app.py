@@ -287,29 +287,35 @@ def change_password():
     return render_template("change_password.html")
 
 
-@app.route("/admin/approve_teachers")
-def approve_teachers():
-    if "username" not in session or session["role"] != "admin":
-        return "Forbidden", 403
+@app.route("/admin/pending_teachers")
+def pending_teachers():
+    if "username" not in session:
+        return "Not authorized.", 403
+
+    current_user = User.query.filter_by(username=session["username"]).first()
+    if not current_user or current_user.role != "admin":
+        return "Forbidden.", 403
 
     pending = User.query.filter_by(role="pending_teacher").all()
-    return render_template("approve_teachers.html", pending=pending)
+    return render_template("pending_teachers.html", users=pending)
 
-@app.route("/admin/approve_teacher/<int:user_id>", methods=["POST"])
-def approve_teacher(user_id):
-    if "username" not in session or session["role"] != "admin":
-        return "Forbidden", 403
+@app.route("/admin/approve_teacher", methods=["POST"])
+def approve_teacher():
+    if "username" not in session:
+        return "Not authorized.", 403
 
+    current_user = User.query.filter_by(username=session["username"]).first()
+    if not current_user or current_user.role != "admin":
+        return "Forbidden.", 403
+
+    user_id = request.form.get("user_id")
     user = User.query.get(user_id)
     if not user:
         return "User not found.", 404
 
-    if user.role != "pending_teacher":
-        return "User is not pending approval.", 400
-
-    user.role = "მასწავლებელი"
+    user.role = "teacher"
     db.session.commit()
-    return redirect(url_for("approve_teachers"))
+    return redirect(url_for("pending_teachers"))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
