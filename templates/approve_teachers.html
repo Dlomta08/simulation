@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Approve Teachers</title>
+</head>
+<body>
+  <h1>Pending Teacher Approvals</h1>
+  <ul>
+    {% for user in pending %}
+      <li>
+        {{ user.username }} ({{ user.email }})
+        <form method="post" action="/admin/approve_teacher/{{ user.id }}" style="display:inline;">
+          <button type="submit">Approve</button>
+        </form>
+      </li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

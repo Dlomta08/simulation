@@ -63,18 +63,19 @@ def register():
         username = request.form["username"]
         email = request.form["email"]
         password = request.form["password"]
-        role = request.form.get("role", "მოსწავლე")  # Default to მოსწავლე if none selected
+        requested_role = request.form["role"]
 
         if User.query.filter((User.username == username) | (User.email == email)).first():
             return "Username or email already exists.", 400
 
+        # If requested role is teacher, save as pending_teacher
+        if requested_role == "მასწავლებელი":
+            role = "pending_teacher"
+        else:
+            role = requested_role
+
         hashed_pw = generate_password_hash(password, method="pbkdf2:sha256")
-        user = User(
-            username=username,
-            email=email,
-            password_hash=hashed_pw,
-            role=role
-        )
+        user = User(username=username, email=email, password_hash=hashed_pw, role=role)
         db.session.add(user)
         db.session.commit()
 
@@ -111,6 +112,9 @@ def whoami():
 def upload_problem():
     if "image" not in request.files:
         return "No image file.", 400
+    
+    if session["role"] != "მასწავლებელი" and session["role"] != "admin":
+        return "Permission denied.", 403
 
     file = request.files["image"]
     if file.filename == "" or not allowed_file(file.filename):
@@ -153,7 +157,10 @@ def uploaded_file(filename):
 def delete_problem(problem_id):
     if "username" not in session:
         return "ავტორიზაცია საჭიროა", 403
-
+    
+    if session["role"] not in ["მასწავლებელი", "admin"]:
+        return "Permission denied.", 403
+    
     user = User.query.filter_by(username=session["username"]).first()
     if user.role not in ["admin"]:
         return "უფლება არ გქონიათ", 403
@@ -278,6 +285,31 @@ def change_password():
         return redirect(url_for("profile"))
 
     return render_template("change_password.html")
+
+
+@app.route("/admin/approve_teachers")
+def approve_teachers():
+    if "username" not in session or session["role"] != "admin":
+        return "Forbidden", 403
+
+    pending = User.query.filter_by(role="pending_teacher").all()
+    return render_template("approve_teachers.html", pending=pending)
+
+@app.route("/admin/approve_teacher/<int:user_id>", methods=["POST"])
+def approve_teacher(user_id):
+    if "username" not in session or session["role"] != "admin":
+        return "Forbidden", 403
+
+    user = User.query.get(user_id)
+    if not user:
+        return "User not found.", 404
+
+    if user.role != "pending_teacher":
+        return "User is not pending approval.", 400
+
+    user.role = "მასწავლებელი"
+    db.session.commit()
+    return redirect(url_for("approve_teachers"))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
