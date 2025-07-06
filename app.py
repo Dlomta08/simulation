@@ -317,6 +317,39 @@ def approve_teacher():
     db.session.commit()
     return redirect(url_for("pending_teachers"))
 
+
+@app.route("/users_list")
+def users_list():
+    users = User.query.all()
+    return render_template("users_list.html", users=users)
+
+@app.route("/view_user_profile/<int:user_id>")
+def view_user_profile(user_id):
+    user = User.query.get_or_404(user_id)
+    # Determine current user
+    current_user = None
+    if "username" in session:
+        current_user = User.query.filter_by(username=session["username"]).first()
+    return render_template("view_user_profile.html", user=user, current_user=current_user)
+
+@app.route("/change_user_role/<int:user_id>", methods=["POST"])
+def change_user_role(user_id):
+    if "username" not in session:
+        return "Unauthorized", 403
+    current_user = User.query.filter_by(username=session["username"]).first()
+    if not current_user or current_user.role != "admin":
+        return "Forbidden", 403
+
+    user = User.query.get_or_404(user_id)
+    new_role = request.form.get("new_role")
+
+    if new_role not in ["მოსწავლე", "მასწავლებელი", "admin"]:
+        return "Invalid role.", 400
+
+    user.role = new_role
+    db.session.commit()
+    return redirect(url_for("view_user_profile", user_id=user.id))
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Directory</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .user-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .user-card {
+      width: 180px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+      background: #f9f9f9;
+      transition: box-shadow 0.3s;
+    }
+    .user-card:hover {
+      box-shadow: 0 0 6px rgba(0,0,0,0.2);
+    }
+    .user-card img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 8px;
+    }
+    .username {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .role {
+      font-size: 0.9em;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Users Directory</h1>
+
+  <div class="user-list">
+    {% for user in users %}
+      <a href="{{ url_for('view_user_profile', user_id=user.id) }}" class="user-card">
+        {% if user.avatar_filename %}
+          <img src="{{ url_for('static', filename='uploads/' ~ user.avatar_filename) }}" alt="Avatar">
+        {% else %}
+          <img src="{{ url_for('static', filename='default_avatar.png') }}" alt="Avatar">
+        {% endif %}
+        <div class="username">{{ user.username }}</div>
+        <div class="role">{{ user.role }}</div>
+      </a>
+    {% endfor %}
+  </div>
+</body>
+</html>

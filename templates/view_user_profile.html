@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profile - {{ user.username }}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 500px;
+      margin: 40px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 20px;
+    }
+    .username {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .role {
+      font-size: 1.1em;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    form {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  {% if user.avatar_filename %}
+    <img src="{{ url_for('static', filename='uploads/' ~ user.avatar_filename) }}" alt="Avatar">
+  {% else %}
+    <img src="{{ url_for('static', filename='default_avatar.png') }}" alt="Avatar">
+  {% endif %}
+
+  <div class="username">{{ user.username }}</div>
+  <div class="role">Role: {{ user.role }}</div>
+
+  {% if current_user and current_user.role == "admin" %}
+    <form method="post" action="{{ url_for('change_user_role', user_id=user.id) }}">
+      <label for="new_role"><strong>Change Role:</strong></label>
+      <select name="new_role" id="new_role">
+        <option value="მოსწავლე" {% if user.role == "მოსწავლე" %}selected{% endif %}>მოსწავლე</option>
+        <option value="მასწავლებელი" {% if user.role == "მასწავლებელი" %}selected{% endif %}>მასწავლებელი</option>
+        <option value="admin" {% if user.role == "admin" %}selected{% endif %}>Admin</option>
+      </select>
+      <button type="submit">Update Role</button>
+    </form>
+  {% endif %}
+</body>
+</html>
