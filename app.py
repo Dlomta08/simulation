@@ -1,38 +1,53 @@
-from flask import Flask, render_template, request, jsonify, redirect, send_from_directory, session, url_for
+from flask import (
+    Flask, render_template, request, jsonify,
+    redirect, send_from_directory, session, url_for
+)
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
-from werkzeug.utils import secure_filename
 
+from werkzeug.utils import secure_filename
+import os
 from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key_123"
 
-UPLOAD_FOLDER = os.path.join("static", "uploads")
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-# PostgreSQL connection string
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-# Make sure you replace this with your actual connection string
+# PostgreSQL connection
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:gzeLeuznnVNTAVFLWPIXEKlhYYgNlkAj@interchange.proxy.rlwy.net:47942/railway'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+UPLOAD_FOLDER = os.path.join("static", "uploads")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
-
-# User model
+# Models
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
     role = db.Column(db.String(20), default='member')
-    avatar_filename = db.Column(db.String(255), nullable=True)
 
+class Problem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    image_filename = db.Column(db.String(255), nullable=False)
+    tags = db.Column(db.String(255))
+    difficulty = db.Column(db.Integer)
+
+# Create DB tables
 with app.app_context():
     db.create_all()
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER)
+
+# Helpers
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Routes
 
 @app.route("/")
 def serve_index():
@@ -42,190 +57,107 @@ def serve_index():
 def serve_static_files(filename):
     return send_from_directory("static", filename)
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-
-        if not username or not email or not password:
-            return "All fields are required.", 400
+    if request.method == "POST":
+        username = request.form["username"]
+        email = request.form["email"]
+        password = request.form["password"]
 
         if User.query.filter((User.username == username) | (User.email == email)).first():
             return "Username or email already exists.", 400
 
-        # Use shorter sha256 hashes
-        hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
-
-        new_user = User(
-            username=username,
-            email=email,
-            password_hash=hashed_pw
-        )
-        db.session.add(new_user)
+        hashed_pw = generate_password_hash(password, method="pbkdf2:sha256")
+        user = User(username=username, email=email, password_hash=hashed_pw)
+        db.session.add(user)
         db.session.commit()
 
-        return redirect(url_for('serve_index'))
+        return redirect(url_for("serve_index"))
 
     return render_template("register.html")
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-
-        if not username or not password:
-            return "All fields are required.", 400
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
 
         user = User.query.filter_by(username=username).first()
-        if not user:
-            return "User not found.", 404
+        if not user or not check_password_hash(user.password_hash, password):
+            return "Invalid credentials.", 400
 
-        if not check_password_hash(user.password_hash, password):
-            return "Incorrect password.", 400
+        session["username"] = user.username
+        return redirect(url_for("serve_index"))
 
-        session['username'] = user.username
-        return redirect(url_for('serve_index'))
-
-    # ✅ Serve the login form if GET
     return render_template("login.html")
 
-
-@app.route('/users')
-def list_users():
-    users = User.query.all()
-    return jsonify([
-        {
-            "id": u.id,
-            "username": u.username,
-            "email": u.email,
-            "role": u.role
-        } for u in users
-    ])
-
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for('serve_index'))
+    return redirect(url_for("serve_index"))
 
 @app.route("/api/whoami")
 def whoami():
-    if "username" in session:
-        return jsonify({"username": session["username"]})
-    else:
-        return jsonify({"username": None})
-    
-@app.route("/profile")
-def profile():
-    if "username" not in session:
-        return redirect(url_for("login"))
+    return jsonify({"username": session.get("username")})
 
-    user = User.query.filter_by(username=session["username"]).first()
-    if not user:
-        return "User not found.", 404
+@app.route("/upload_problem", methods=["POST"])
+def upload_problem():
+    if "image" not in request.files:
+        return "No image file.", 400
 
-    return render_template("profile.html", user=user)
+    file = request.files["image"]
+    if file.filename == "" or not allowed_file(file.filename):
+        return "Invalid file.", 400
 
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(UPLOAD_FOLDER, filename))
 
-@app.route("/edit_profile", methods=["GET", "POST"])
-def edit_profile():
-    if "username" not in session:
-        return redirect(url_for("login"))
+    difficulty = int(request.form.get("difficulty", 3))
+    tags = request.form.get("tags", "")
 
-    user = User.query.filter_by(username=session["username"]).first()
-    if not user:
-        return "User not found.", 404
+    problem = Problem(
+        image_filename=filename,
+        tags=tags,
+        difficulty=difficulty
+    )
+    db.session.add(problem)
+    db.session.commit()
 
-    if request.method == "POST":
-        new_email = request.form.get("email")
-        new_username = request.form.get("username")
+    return "Problem uploaded."
 
-        # Optional: Validate inputs here
+@app.route("/api/problems")
+def get_problems():
+    problems = Problem.query.all()
+    return jsonify([
+        {
+            "id": p.id,
+            "image_url": url_for("uploaded_file", filename=p.image_filename),
+            "tags": p.tags or "",
+            "difficulty": p.difficulty
+        }
+        for p in problems
+    ])
 
-        if new_email:
-            user.email = new_email
+@app.route("/uploads/<filename>")
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
-        if new_username:
-            # Check if username is taken
-            existing = User.query.filter(User.username == new_username).first()
-            if existing and existing.id != user.id:
-                return "Username already taken.", 400
-            user.username = new_username
-            # Update the session username so it shows up right
-            session["username"] = new_username
+@app.route("/api/delete_problem/<int:problem_id>", methods=["POST"])
+def delete_problem(problem_id):
+    problem = Problem.query.get(problem_id)
+    if not problem:
+        return "Problem not found.", 404
 
-        db.session.commit()
-        return redirect(url_for("profile"))
+    # Remove image file
+    try:
+        os.remove(os.path.join(UPLOAD_FOLDER, problem.image_filename))
+    except Exception:
+        pass  # Ignore file deletion errors
 
-    return render_template("edit_profile.html", user=user)
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-UPLOAD_FOLDER = os.path.join("static", "uploads")
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
-@app.route("/upload_avatar", methods=["GET", "POST"])
-def upload_avatar():
-    if "username" not in session:
-        return redirect(url_for("login"))
-
-    user = User.query.filter_by(username=session["username"]).first()
-    if not user:
-        return "User not found.", 404
-
-    if request.method == "POST":
-        if "avatar" not in request.files:
-            return "No file part.", 400
-
-        file = request.files["avatar"]
-
-        if file.filename == "":
-            return "No selected file.", 400
-
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(UPLOAD_FOLDER, filename)
-            file.save(filepath)
-
-            user.avatar_filename = filename
-            db.session.commit()
-            return redirect(url_for("profile"))
-        else:
-            return "Invalid file type.", 400
-
-    return render_template("upload_avatar.html")
-
-@app.route("/change_password", methods=["GET", "POST"])
-def change_password():
-    if "username" not in session:
-        return redirect(url_for("login"))
-
-    user = User.query.filter_by(username=session["username"]).first()
-    if not user:
-        return "User not found.", 404
-
-    if request.method == "POST":
-        current_password = request.form.get("current_password")
-        new_password = request.form.get("new_password")
-
-        if not current_password or not new_password:
-            return "All fields are required.", 400
-
-        if not check_password_hash(user.password_hash, current_password):
-            return "Incorrect current password.", 400
-
-        user.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
-        db.session.commit()
-        return redirect(url_for("profile"))
-
-    return render_template("change_password.html")
-
+    db.session.delete(problem)
+    db.session.commit()
+    return "Problem deleted."
 
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

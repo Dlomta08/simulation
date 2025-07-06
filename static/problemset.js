@@ -3,24 +3,22 @@ function toggleForm() {
   form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
 }
 
-document.getElementById("problemImage").addEventListener("change", function () {
-  const fileName = this.files[0] ? this.files[0].name : "No file chosen";
-  document.getElementById("fileNameDisplay").textContent = fileName;
-});
-
 function toggleFilter() {
   const filterSection = document.getElementById("filterSection");
   const btn = event.target;
   if (filterSection.style.display === "none" || filterSection.style.display === "") {
     filterSection.style.display = "block";
-    btn.textContent = "ამოცანების ფილტრი";
+    btn.textContent = "ფილტრის დამალვა";
   } else {
     filterSection.style.display = "none";
     btn.textContent = "ამოცანების ფილტრი";
   }
 }
 
-let problems = [], quizPreviewProblems = [];
+let problems = [];
+let quizPreviewProblems = [];
+
+// Load problems from server on page load
 window.onload = () => {
   loadProblems();
   Sortable.create(document.getElementById('quizPreview'), {
@@ -31,33 +29,33 @@ window.onload = () => {
   });
 };
 
-function saveProblems() {
-  const data = problems.map(p => ({
-    difficulty: p.difficulty,
-    tags: p.tags,
-    imageDataUrl: p.imageDataUrl,
-  }));
-  localStorage.setItem("problemsetData", JSON.stringify(data));
-}
-
 function loadProblems() {
-  const saved = localStorage.getItem("problemsetData");
-  if (!saved) return;
+  fetch("/api/problems")
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById("problemList");
+      container.innerHTML = "";
+      problems = [];
 
-  const savedProblems = JSON.parse(saved);
-  savedProblems.forEach(p => {
-    const card = createProblemCard(p.difficulty, p.tags, p.imageDataUrl);
-    document.getElementById("problemList").appendChild(card);
-    problems.push({
-      difficulty: p.difficulty,
-      tags: p.tags,
-      imageDataUrl: p.imageDataUrl,
-      element: card,
-    });
-  });
+      data.forEach(p => {
+        const tagsArray = p.tags ? p.tags.split(",").map(t => t.trim()) : [];
+        const card = createProblemCard(p.id, p.difficulty, tagsArray, p.image_url);
+        container.appendChild(card);
+        problems.push({
+          id: p.id,
+          difficulty: p.difficulty,
+          tags: tagsArray,
+          imageUrl: p.image_url,
+          element: card
+        });
+      });
+
+      applyFilters();
+    })
+    .catch(err => console.error("Error loading problems:", err));
 }
 
-function createProblemCard(difficulty, tags, imageDataUrl) {
+function createProblemCard(id, difficulty, tags, imageUrl) {
   const card = document.createElement("div");
   card.className = "problem-card";
 
@@ -65,15 +63,15 @@ function createProblemCard(difficulty, tags, imageDataUrl) {
     <input type="checkbox" class="quiz-select">
     <button onclick="toggleSpoiler(this)">გახსენით ამოცანა</button>
     <div class="spoiler-content" style="display:none;">
-      <img src="${imageDataUrl}" alt="Problem Image" class="problem-img">
+      <img src="${imageUrl}" alt="Problem Image" class="problem-img">
     </div>
     <p><strong>სირთულე:</strong> ${difficulty}</p>
-    <p><strong>თემები:</strong> ${tags.map(t => `<span class="tag">${t}</span>`).join(" ")}</p>
-    <button class="delete-button">ამოცანის წაშლა</button>
+    <p><strong>თემები:</strong> ${tags.map(t => `<span class="tag">${t}</span>`).join(", ")}</p>
+    <button class="delete-button" style="margin-top:5px;background:#f44336;color:white;">წაშლა</button>
   `;
 
   card.querySelector(".delete-button").addEventListener("click", () => {
-    deleteProblem(card);
+    deleteProblem(id, card);
   });
 
   return card;
@@ -81,56 +79,51 @@ function createProblemCard(difficulty, tags, imageDataUrl) {
 
 function addProblem() {
   const imageInput = document.getElementById("problemImage");
-  const tags = document
-    .getElementById("tags")
-    .value.split(",")
-    .map(t => t.trim())
-    .filter(t => t);
-  const difficulty = parseInt(document.getElementById("difficulty").value);
+  const tags = document.getElementById("tags").value;
+  const difficulty = document.getElementById("difficulty").value;
 
   if (!imageInput.files[0]) {
     alert("Please upload an image.");
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = e => {
-    const imageDataUrl = e.target.result;
-    const card = createProblemCard(difficulty, tags, imageDataUrl);
+  const formData = new FormData();
+  formData.append("image", imageInput.files[0]);
+  formData.append("tags", tags);
+  formData.append("difficulty", difficulty);
 
-    document.getElementById("problemList").appendChild(card);
-
-    problems.push({
-      difficulty,
-      tags,
-      imageDataUrl,
-      element: card,
-    });
-
-    saveProblems();
-    applyFilters();
-
-    // Clear inputs
-    imageInput.value = "";
-    document.getElementById("fileNameDisplay").textContent = "No file chosen";
-    document.getElementById("tags").value = "";
-    document.getElementById("difficulty").value = "3";
-    document.getElementById("difficultyValue").textContent = "3";
-
-    // Update quiz preview for new selection
-    renderQuizPreview();
-  };
-
-  reader.readAsDataURL(imageInput.files[0]);
+  fetch("/upload_problem", {
+    method: "POST",
+    body: formData
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("ამოცანის დამატება ვერ განხორციელდა.");
+      return res.text();
+    })
+    .then(() => {
+      alert("ამოცანა დამატებულია!");
+      loadProblems();
+      // Reset form inputs
+      imageInput.value = "";
+      document.getElementById("tags").value = "";
+      document.getElementById("difficulty").value = "3";
+    })
+    .catch(err => alert(err.message));
 }
 
-function deleteProblem(card) {
-  card.remove();
-  problems = problems.filter(p => p.element !== card);
-  saveProblems();
+function deleteProblem(problemId, card) {
+  if (!confirm("ნამდვილად გსურთ ამ ამოცანის წაშლა?")) return;
 
-  // Update quiz preview after delete
-  renderQuizPreview();
+  fetch(`/api/delete_problem/${problemId}`, { method: "POST" })
+    .then(res => {
+      if (!res.ok) throw new Error("წაშლა ვერ განხორციელდა.");
+      // Remove from DOM and array
+      card.remove();
+      problems = problems.filter(p => p.id !== problemId);
+      renderQuizPreview();
+      alert("ამოცანა წაიშალა.");
+    })
+    .catch(err => alert(err.message));
 }
 
 function toggleSpoiler(button) {
@@ -141,31 +134,20 @@ function toggleSpoiler(button) {
 }
 
 function applyFilters() {
-  const minDiffStr = document.getElementById("filterMinDifficulty").value;
-  const maxDiffStr = document.getElementById("filterMaxDifficulty").value;
-
-  const minDiff = minDiffStr ? parseInt(minDiffStr) : undefined;
-  const maxDiff = maxDiffStr ? parseInt(maxDiffStr) : undefined;
+  const minDiff = parseInt(document.getElementById("filterMinDifficulty").value);
+  const maxDiff = parseInt(document.getElementById("filterMaxDifficulty").value);
 
   const tagFilter = document.getElementById("filterTags").value
     .toLowerCase()
-    .split(',')
+    .split(",")
     .map(t => t.trim())
     .filter(t => t);
 
   problems.forEach(p => {
-    let matchesDifficulty = true;
-    if (minDiff !== undefined && maxDiff !== undefined) {
-      if (minDiff > maxDiff) {
-        matchesDifficulty = true; // ignore filter if invalid range
-      } else {
-        matchesDifficulty = (p.difficulty >= minDiff && p.difficulty <= maxDiff);
-      }
-    }
-
-    const matchesTags = tagFilter.length === 0 || tagFilter.every(tag =>
-      p.tags.map(t => t.toLowerCase()).includes(tag)
-    );
+    let matchesDifficulty = p.difficulty >= minDiff && p.difficulty <= maxDiff;
+    let matchesTags =
+      tagFilter.length === 0 ||
+      tagFilter.every(tag => p.tags.map(t => t.toLowerCase()).includes(tag));
 
     p.element.style.display = (matchesDifficulty && matchesTags) ? "block" : "none";
   });
@@ -175,19 +157,16 @@ function renderQuizPreview() {
   const preview = document.getElementById('quizPreview');
   const selected = problems.filter(p => p.element.querySelector('.quiz-select')?.checked);
 
-  // Add new selections to quizPreviewProblems if not already added
   selected.forEach(p => {
     if (!quizPreviewProblems.includes(p)) {
       quizPreviewProblems.push(p);
     }
   });
 
-  // Remove deselected problems
   quizPreviewProblems = quizPreviewProblems.filter(p =>
     p.element.querySelector('.quiz-select')?.checked
   );
 
-  // Now render preview based on quizPreviewProblems array
   preview.innerHTML = '';
   quizPreviewProblems.forEach((p, i) => {
     const div = document.createElement('div');
@@ -197,7 +176,7 @@ function renderQuizPreview() {
     div.style.marginBottom = '5px';
     div.style.cursor = 'move';
 
-    div.dataset.image = p.imageDataUrl;
+    div.dataset.image = p.imageUrl;
     div.dataset.difficulty = p.difficulty;
     div.dataset.tags = JSON.stringify(p.tags);
 
@@ -206,7 +185,7 @@ function renderQuizPreview() {
     label.innerHTML = `<strong>ამოცანა N${i + 1}:</strong> სირთულე: ${p.difficulty} – თემები: ${p.tags.join(', ')}`;
 
     const img = document.createElement('img');
-    img.src = p.imageDataUrl;
+    img.src = p.imageUrl;
     img.style.display = 'none';
     img.style.maxWidth = '100%';
     img.style.marginTop = '10px';
@@ -236,22 +215,21 @@ function refreshQuizPreview() {
 }
 
 function shuffleQuiz() {
-  const preview = document.getElementById('quizPreview');
   for (let i = quizPreviewProblems.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [quizPreviewProblems[i], quizPreviewProblems[j]] = [quizPreviewProblems[j], quizPreviewProblems[i]];
   }
-  renderQuizPreview(); 
+  renderQuizPreview();
 }
 
 function generateQuizPDF() {
   if (quizPreviewProblems.length === 0) {
-    alert("No problems in quiz preview");
+    alert("No problems selected.");
     return;
   }
 
   const orderedProblems = quizPreviewProblems.map(p => ({
-    imageDataUrl: p.imageDataUrl,
+    imageUrl: p.imageUrl,
     difficulty: p.difficulty,
     tags: p.tags
   }));
@@ -259,16 +237,12 @@ function generateQuizPDF() {
   openQuizWindow(orderedProblems);
 }
 
-
-// Open quiz window and display problems with PDF download button
 function openQuizWindow(selectedProblems) {
-  const quizTitle = document.getElementById("quizTitle")?.value.trim() || "Quiz";
   const quizWindow = window.open("", "_blank");
-
   quizWindow.document.write(`
     <html>
     <head>
-      <title>${quizTitle}</title>
+      <title>Quiz</title>
       <style>
         body { font-family: sans-serif; padding: 20px; }
         .problem { margin-bottom: 30px; border-bottom: 1px solid #ccc; padding-bottom: 15px; }
@@ -285,7 +259,7 @@ function openQuizWindow(selectedProblems) {
     quizWindow.document.write(`
       <div class="problem">
         <h3>${i + 1}.</h3>
-        <img src="${p.imageDataUrl}" alt="Problem Image">
+        <img src="${p.imageUrl}" alt="Problem Image">
       </div>
     `);
   });
@@ -297,7 +271,7 @@ function openQuizWindow(selectedProblems) {
           const element = document.getElementById("quizContent");
           const opt = {
             margin: 10,
-            filename: "${quizTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf",
+            filename: "quiz.pdf",
             image: { type: 'jpeg', quality: 1 },
             html2canvas: { scale: 3 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -315,5 +289,5 @@ function openQuizWindow(selectedProblems) {
 document.addEventListener('change', e => {
   if (e.target.classList.contains('quiz-select')) {
     renderQuizPreview();
-  } 
+  }
 });
