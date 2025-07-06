@@ -328,7 +328,7 @@ const quizData = [
 // 24
 {
 
-  image: "class-8/images/23-24mesame.png",
+  image: "math/class-8/images/23-24mesame.png",
   question: "$ABCD$ მართკუთხედში (იხ. ნახაზი) $F$ წერტილი $CD$ გვერდის შუაწერტილია. $BF$ მონაკვეთზე აღებულია $K$ წერტილი ისე, რომ $BK = 8$, $KF = 2$ და $\\angle AKD = 90^\\circ$. იპოვეთ $AB \\cdot BC$ ნამრავლი.",
   options: [
     "$32$",
