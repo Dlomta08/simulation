@@ -345,7 +345,7 @@ def change_user_role(user_id):
     user = User.query.get_or_404(user_id)
     new_role = request.form.get("new_role")
 
-    if new_role not in ["მოსწავლე", "მასწავლებელი", "admin"]:
+    if new_role not in ["მოსწავლე", "მასწავლებელი", "admin", "გოგიჩა"]:
         return "Invalid role.", 400
 
     user.role = new_role
