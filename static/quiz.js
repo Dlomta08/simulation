@@ -46,7 +46,8 @@ function renderQuiz(){
         form.appendChild(introDiv);
         if (window.MathJax) MathJax.typeset();
       }
-
+      
+    // warning
     if (typeof q.warning === "string" && q.warning.trim() !== "") {
       const warnDiv = document.createElement("div");
       warnDiv.className = "warning";
@@ -58,6 +59,7 @@ function renderQuiz(){
     legend.innerHTML = `<strong>${i + 1}.</strong><br>${q.question}`;
     fieldset.appendChild(legend);
 
+    // image
     if (q.image) {
       const img = document.createElement("img");
       img.src = q.image;
@@ -155,6 +157,67 @@ function renderQuiz(){
   result.id = "result";
   result.style.marginTop = "12px";
   form.appendChild(result);
+
+const markDoneBtn = document.createElement("button");
+markDoneBtn.type = "button";
+markDoneBtn.textContent = "ქვიზის გაკეთებულად მონიშვნა";
+markDoneBtn.style.marginLeft = "10px";
+markDoneBtn.style.transition = "background-color 0.3s ease, color 0.3s ease";
+
+const tickSpan = document.createElement("span");
+tickSpan.style.marginLeft = "8px";
+tickSpan.style.color = "green";
+tickSpan.textContent = "";
+
+const urlParams = new URLSearchParams(window.location.search);
+const year = urlParams.get("year");
+const number = urlParams.get("number");
+const classNum = urlParams.get("class");
+const category = urlParams.get("category");
+
+const doneKey = `done-${classNum}-${year}-${number}-${category}`;
+
+let isMarkedDone = localStorage.getItem(doneKey) === "true";
+if (isMarkedDone) {
+  tickSpan.textContent = "✔";
+  markDoneBtn.style.backgroundColor = "#28a745"; // strong green
+  markDoneBtn.style.color = "white";
+}
+
+markDoneBtn.addEventListener("click", () => {
+  isMarkedDone = !isMarkedDone;
+  if (isMarkedDone) {
+    localStorage.setItem(doneKey, "true");
+    tickSpan.textContent = "✔";
+    markDoneBtn.style.backgroundColor = "#28a745"; // strong green
+    markDoneBtn.style.color = "white";
+  } else {
+    localStorage.removeItem(doneKey);
+    tickSpan.textContent = "";
+    markDoneBtn.style.backgroundColor = ""; // reset
+    markDoneBtn.style.color = "";
+  }
+});
+
+form.appendChild(markDoneBtn);
+form.appendChild(tickSpan);
+
+// Create container for both buttons side by side
+const actionRow = document.createElement("div");
+//actionRow.style.display = "flex";
+actionRow.style.gap = "10px";
+actionRow.style.alignItems = "center";
+actionRow.style.marginTop = "20px";
+
+// Add both buttons and tick to this row
+actionRow.appendChild(submitBtn);
+actionRow.appendChild(markDoneBtn);
+actionRow.appendChild(tickSpan);
+
+// Add the row to the form
+form.appendChild(actionRow);
+
+
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();

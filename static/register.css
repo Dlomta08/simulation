@@ -58,3 +58,21 @@ button:hover {
 hr {
   margin: 40px 0;
 }
+
+#account-info {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+
+#account-info a {
+  margin-left: 10px;
+  text-decoration: none;
+  color: #007bff;
+}
+
+#account-info a:hover {
+  text-decoration: underline;
+}

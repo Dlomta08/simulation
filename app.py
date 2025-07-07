@@ -29,6 +29,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.Text, nullable=False)
     role = db.Column(db.String(20), default='მოსწავლე')
+    avatar_filename = db.Column(db.String(255), nullable=True)
 
 class Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -63,8 +64,12 @@ def register():
         username = request.form["username"]
         email = request.form["email"]
         password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
         requested_role = request.form["role"]
 
+        if password != confirm_password:
+            return "Passwords do not match.", 400
+        
         if User.query.filter((User.username == username) | (User.email == email)).first():
             return "Username or email already exists.", 400
 
@@ -351,6 +356,32 @@ def change_user_role(user_id):
     user.role = new_role
     db.session.commit()
     return redirect(url_for("view_user_profile", user_id=user.id))
+
+@app.route("/delete_user/<int:user_id>", methods=["POST"])
+def delete_user(user_id):
+    if "username" not in session:
+        return "Unauthorized", 403
+
+    current_user = User.query.filter_by(username=session["username"]).first()
+    if not current_user or current_user.role != "admin":
+        return "Forbidden", 403
+
+    user = User.query.get_or_404(user_id)
+
+    # Prevent deleting yourself if you want:
+    if user.id == current_user.id:
+        return "You cannot delete your own account.", 400
+
+    # Optionally: delete avatar file if exists
+    if user.avatar_filename:
+        try:
+            os.remove(os.path.join("static", "uploads", user.avatar_filename))
+        except Exception:
+            pass
+
+    db.session.delete(user)
+    db.session.commit()
+    return redirect(url_for("list_users"))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
