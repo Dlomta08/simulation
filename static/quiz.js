@@ -47,6 +47,15 @@ function renderQuiz(){
         if (window.MathJax) MathJax.typeset();
       }
       
+      // task
+      if (quizData.length > 0 && typeof quizData[i].task === "string" && quizData[i].task.trim() !== "") {
+        const taskDiv = document.createElement("div");
+        taskDiv.className = "task";
+        taskDiv.innerHTML = quizData[i].task;
+        form.appendChild(taskDiv);
+        if (window.MathJax) MathJax.typeset();
+      }
+
     // warning
     if (typeof q.warning === "string" && q.warning.trim() !== "") {
       const warnDiv = document.createElement("div");

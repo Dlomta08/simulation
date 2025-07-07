@@ -78,3 +78,16 @@ button {
 #account-info a:hover {
   text-decoration: underline;
 }
+
+.task {
+  background-color: #ffffff;
+  border-left: 6px solid #666666;            /* thicker and darker gray */
+  padding: 16px 20px;
+  margin: 24px 0;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #2c2c2c;
+  line-height: 1.6;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: border-left 0.3s ease;
+}
