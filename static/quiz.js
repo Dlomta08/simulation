@@ -191,6 +191,7 @@ if (isMarkedDone) {
   tickSpan.textContent = "✔";
   markDoneBtn.style.backgroundColor = "#28a745"; // strong green
   markDoneBtn.style.color = "white";
+  markDoneBtn.textContent = "ქვიზი მონიშნულია";
 }
 
 markDoneBtn.addEventListener("click", () => {
@@ -198,15 +199,18 @@ markDoneBtn.addEventListener("click", () => {
   if (isMarkedDone) {
     localStorage.setItem(doneKey, "true");
     tickSpan.textContent = "✔";
-    markDoneBtn.style.backgroundColor = "#28a745"; // strong green
+    markDoneBtn.style.backgroundColor = "#28a745";
     markDoneBtn.style.color = "white";
+    markDoneBtn.textContent = "ქვიზი მონიშნულია";
   } else {
     localStorage.removeItem(doneKey);
     tickSpan.textContent = "";
-    markDoneBtn.style.backgroundColor = ""; // reset
+    markDoneBtn.style.backgroundColor = "";
     markDoneBtn.style.color = "";
+    markDoneBtn.textContent = "ქვიზის გაკეთებულად მონიშვნა";
   }
 });
+
 
 form.appendChild(markDoneBtn);
 form.appendChild(tickSpan);
