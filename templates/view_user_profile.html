@@ -31,9 +31,57 @@
     form {
       margin-top: 20px;
     }
+    .delete-button {
+      margin-top: 20px;
+      background: #d9534f;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .delete-button:hover {
+      background: #c9302c;
+    }
+    #home-button {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: #3498db;
+      color: white;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+      transition: background 0.2s;
+    }
+    #home-button:hover {
+      background: #2980b9;
+    }
+    #account-info {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 14px;
+      font-family: Arial, sans-serif;
+    }
+
+    #account-info a {
+      margin-left: 10px;
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    #account-info a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+  <a href="/" id="home-button">🏠 მთავარი</a>
+
+  <div id="account-info"></div>
   {% if user.avatar_filename %}
     <img src="{{ url_for('static', filename='uploads/' ~ user.avatar_filename) }}" alt="Avatar">
   {% else %}
@@ -53,6 +101,11 @@
       </select>
       <button type="submit">Update Role</button>
     </form>
+
+    <form method="post" action="{{ url_for('delete_user', user_id=user.id) }}" onsubmit="return confirm('Are you sure you want to delete this user?');">
+      <button type="submit" class="delete-button">Delete User</button>
+    </form>
   {% endif %}
+  <script src="account.js"></script>
 </body>
 </html>
