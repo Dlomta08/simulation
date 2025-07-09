@@ -383,6 +383,96 @@ def delete_user(user_id):
     db.session.commit()
     return redirect(url_for("list_users"))
 
+
+@app.route("/personal_bank")
+def personal_bank():
+    if "username" not in session:
+        return redirect(url_for("login"))
+    return render_template("personal_bank.html")
+
+class PersonalProblem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    image_filename = db.Column(db.String(255), nullable=False)
+    tags = db.Column(db.String(255))
+    difficulty = db.Column(db.Integer)
+
+    user = db.relationship("User", backref="personal_problems")
+
+@app.route("/upload_personal_problem", methods=["POST"])
+def upload_personal_problem():
+    if "username" not in session:
+        return "Unauthorized", 403
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found", 404
+
+    if "image" not in request.files:
+        return "No image file.", 400
+
+    file = request.files["image"]
+    if file.filename == "" or not allowed_file(file.filename):
+        return "Invalid file.", 400
+
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(UPLOAD_FOLDER, filename))
+
+    difficulty = int(request.form.get("difficulty", 3))
+    tags = request.form.get("tags", "")
+
+    problem = PersonalProblem(
+        user_id=user.id,
+        image_filename=filename,
+        tags=tags,
+        difficulty=difficulty
+    )
+    db.session.add(problem)
+    db.session.commit()
+
+    return "Personal problem uploaded."
+
+@app.route("/api/personal_problems")
+def get_personal_problems():
+    if "username" not in session:
+        return "Unauthorized", 403
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found", 404
+
+    problems = PersonalProblem.query.filter_by(user_id=user.id).all()
+    return jsonify([
+        {
+            "id": p.id,
+            "image_url": url_for("uploaded_file", filename=p.image_filename),
+            "tags": p.tags or "",
+            "difficulty": p.difficulty
+        }
+        for p in problems
+    ])
+
+@app.route("/api/delete_personal_problem/<int:problem_id>", methods=["POST"])
+def delete_personal_problem(problem_id):
+    if "username" not in session:
+        return "Unauthorized", 403
+
+    user = User.query.filter_by(username=session["username"]).first()
+    problem = PersonalProblem.query.get(problem_id)
+
+    if not problem or problem.user_id != user.id:
+        return "Not found or no permission", 404
+
+    # Remove image
+    try:
+        os.remove(os.path.join(UPLOAD_FOLDER, problem.image_filename))
+    except:
+        pass
+
+    db.session.delete(problem)
+    db.session.commit()
+    return "Deleted"
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
