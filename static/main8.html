@@ -31,12 +31,21 @@
       yearLabel.textContent = academicYear;
       const btnGroup = document.createElement("div");
       btnGroup.className = "quiz-buttons";
-      for (let q = 1; q <= quizzesPerYear; q++) {
-        const btn = document.createElement("button");
-        btn.textContent = q;
-        btn.onclick = () => handleQuizClick(academicYear, q, classNum, "math");
-        btnGroup.appendChild(btn);
+     for (let q = 1; q <= quizzesPerYear; q++) {
+      const btn = document.createElement("button");
+      btn.textContent = q;
+
+      const yearKey = academicYear.replace("/", "-");
+      const doneKey = `done-${classNum}-${yearKey}-${q}-math`;
+
+      if (localStorage.getItem(doneKey)) {
+        btn.style.backgroundColor = "#28a745"; // match the green
+        btn.style.color = "white";
       }
+
+      btn.onclick = () => handleQuizClick(academicYear, q, classNum, "math");
+      btnGroup.appendChild(btn);
+    }
       row.appendChild(yearLabel);
       row.appendChild(btnGroup);
       yearTable.appendChild(row);
