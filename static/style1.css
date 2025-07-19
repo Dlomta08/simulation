@@ -8,52 +8,11 @@ body, html {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-
 html.dark-mode, body.dark-mode {
   background-color: #121212;
   color: white;
 }
 
-body.dark-mode {
-  background-color: #121212;
-  color: white;
-}
-
-.center-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-}
-
-.big-button {
-  font-size: 3rem;
-  padding: 100px 150px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.big-button:hover {
-  background-color: #0056b3;
-}
-
-#toggle-dark {
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;      /* inherit font size, family, etc. */
-  color: rgb(231, 231, 231);        /* choose your text color */
-  cursor: pointer;
-   /* optional, looks like a link */
-}
-
-#toggle-dark:hover {
-  color: rgb(0, 0, 0);    /* change color on hover */
-}
 #account-info {
   position: absolute;
   top: 20px;
@@ -71,3 +30,50 @@ body.dark-mode {
 #account-info a:hover {
   text-decoration: underline;
 }
+
+#toggle-dark {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: rgb(80, 80, 80);
+  cursor: pointer;
+}
+
+#toggle-dark:hover {
+  color: black;
+}
+
+/* ✅ New container for horizontal layout */
+.link-row {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 20px;
+}
+
+.plain-link {
+  font-size: 1.2rem;
+  color: #007bff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+}
+
+
+.plain-link:focus,
+.plain-link:active {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+
+
