@@ -73,3 +73,41 @@ fieldset {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
 }
 
+symbol-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.symbol-background span {
+  position: absolute;
+  font-size: 3rem;
+  font-weight: bold;
+  font-family: 'Cambria Math', serif;
+  color: rgba(0, 0, 0, 1);
+  animation: float 20s infinite linear;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* მუქი რეჟიმისთვის */
+html.dark-mode .symbol-background span {
+  color: rgba(255, 255, 255, 1);
+}
