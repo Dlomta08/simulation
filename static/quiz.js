@@ -64,18 +64,23 @@ function renderQuiz(){
       fieldset.appendChild(warnDiv);
     }
     
+    const contentWrapper = document.createElement("div");
+    contentWrapper.className = "quiz-question-wrapper";
+
     const legend = document.createElement("legend");
     legend.innerHTML = `<strong>${i + 1}.</strong><br>${q.question}`;
-    fieldset.appendChild(legend);
+    contentWrapper.appendChild(legend);
 
-    // image
+    // image inside wrapper
     if (q.image) {
       const img = document.createElement("img");
       img.src = q.image;
       img.alt = q.alt || `Question ${i + 1} illustration`;
       img.className = "quiz-image";
-      fieldset.appendChild(img);
+      contentWrapper.appendChild(img);
     }
+
+    fieldset.appendChild(contentWrapper);
 
     const feedback = document.createElement("div");
     feedback.className = "feedback";
