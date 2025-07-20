@@ -113,7 +113,10 @@ def logout():
 
 @app.route("/api/whoami")
 def whoami():
-    return jsonify({"username": session.get("username")})
+    return jsonify({
+        "username": session.get("username"),
+        "role": session.get("role")
+    })
 
 @app.route("/upload_problem", methods=["POST"])
 def upload_problem():
