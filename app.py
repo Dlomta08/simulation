@@ -323,7 +323,7 @@ def approve_teacher():
     if not user:
         return "User not found.", 404
 
-    user.role = "teacher"
+    user.role = "მასწავლებელი"
     db.session.commit()
     return redirect(url_for("pending_teachers"))
 
