@@ -91,3 +91,13 @@ button {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   transition: border-left 0.3s ease;
 }
+
+.question-image img {
+  width: 60%; /* or try 50%, 40%, etc. */
+  max-width: 400px; /* optional max size */
+  height: auto;
+  display: block;
+  margin: 0 auto 24px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}

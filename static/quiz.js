@@ -72,9 +72,8 @@ function renderQuiz(){
     if (q.image) {
       const img = document.createElement("img");
       img.src = q.image;
-      img.alt = q.alt || `Question ${i+1} illustration`;
-      img.style.maxWidth = "100%";
-      img.style.margin   = "8px 0";
+      img.alt = q.alt || `Question ${i + 1} illustration`;
+      img.className = "quiz-image";
       fieldset.appendChild(img);
     }
 
