@@ -12,10 +12,11 @@ html, body {
   padding: 0;
   background-color: white;
   color: black;
-  overflow-x: hidden; /* prevent horizontal scrollbar */
+  overflow: hidden; /* prevent horizontal scrollbar */
   font-family: Arial, sans-serif;
   font-size: 24px;
   transition: background-color 0.0s ease, color 0.0s ease;
+  
 }
 /* Page container: Use flexbox to align everything neatly */
 .page2-container {
@@ -26,14 +27,22 @@ html, body {
     padding: 50px;
     height: 100vh;
     box-sizing: border-box; /* Ensure padding doesn't affect layout */
+    background: transparent;
+    position: relative;
 }
+
 
 /* Container for the titles to make them appear next to each other */
 .titles-container {
-    display: flex;
-    gap: 50px; /* Space between titles */
-    justify-content: center; /* Center titles horizontally */
-    width: 75%;
+  display: flex;
+  gap: 50px;
+  justify-content: center;
+  width: 75%;
+  padding: 0; 
+  background: none; 
+  border-radius: 0; 
+  box-shadow: none; 
+  backdrop-filter: none; 
 }
 
 /* Style for the non-clickable title (modern and large) */
@@ -51,6 +60,7 @@ html, body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.286); /* Soft shadow for depth */
     transition: transform 0.3s ease-in-out; /* Smooth animation on hover */
     flex: 1; /* Ensure both titles take equal space */
+    border-radius: 25px;
 }
 
 .text-title:hover {
@@ -109,6 +119,8 @@ body.dark-mode, html.dark-mode {
 body.dark-mode .page2-container {
   background-color: #121212;
   color: white;
+  background: transparent;
+  position: relative;
 }
 
 body.dark-mode .text-title {
@@ -159,15 +171,15 @@ body.dark-mode .vertical-buttons button:hover {
 }
 
 
-symbol-background {
+.symbol-background {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+  width: 100vw;
+  height: 100vh;
   z-index: 0;
   overflow: hidden;
+  pointer-events: none;
 }
 
 .symbol-background span {
