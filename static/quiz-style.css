@@ -43,7 +43,7 @@ body.dark-mode .quiz-container {
 }
 
 .quiz-image {
-  max-width: 100px; /* You can reduce this as needed */
+  max-width: 200px; /* You can reduce this as needed */
   width: 100%;
   height: auto;
   margin: 12px 0;
