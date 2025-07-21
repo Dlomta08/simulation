@@ -9,6 +9,20 @@ from werkzeug.utils import secure_filename
 import os
 from flask_migrate import Migrate
 
+
+import cloudinary # type: ignore
+import cloudinary.uploader # type: ignore
+import cloudinary.api # type: ignore
+
+# Cloudinary config
+cloudinary.config(
+    cloud_name="dtm5ozm6d",
+    api_key="542876597858634",
+    api_secret="abcdefghijklmnop"
+)
+
+
+
 app = Flask(__name__)
 app.secret_key = "super_secret_key_123"
 
@@ -122,7 +136,7 @@ def whoami():
 def upload_problem():
     if "image" not in request.files:
         return "No image file.", 400
-    
+
     if session["role"] != "მასწავლებელი" and session["role"] != "admin":
         return "Permission denied.", 403
 
@@ -130,14 +144,15 @@ def upload_problem():
     if file.filename == "" or not allowed_file(file.filename):
         return "Invalid file.", 400
 
-    filename = secure_filename(file.filename)
-    file.save(os.path.join(UPLOAD_FOLDER, filename))
+    # Upload to Cloudinary instead of saving locally
+    upload_result = cloudinary.uploader.upload(file)
+    image_url = upload_result["secure_url"]
 
     difficulty = int(request.form.get("difficulty", 3))
     tags = request.form.get("tags", "")
 
     problem = Problem(
-        image_filename=filename,
+        image_filename=image_url,  # now this is a URL
         tags=tags,
         difficulty=difficulty
     )
@@ -152,16 +167,12 @@ def get_problems():
     return jsonify([
         {
             "id": p.id,
-            "image_url": url_for("uploaded_file", filename=p.image_filename),
+            "image_url": p.image_filename,  # შეცვლილია: ახლა პირდაპირ ბმულია
             "tags": p.tags or "",
             "difficulty": p.difficulty
         }
         for p in problems
     ])
-
-@app.route("/uploads/<filename>")
-def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
 
 @app.route("/api/delete_problem/<int:problem_id>", methods=["POST"])
 def delete_problem(problem_id):
@@ -172,18 +183,20 @@ def delete_problem(problem_id):
         return "Permission denied.", 403
     
     user = User.query.filter_by(username=session["username"]).first()
-    if user.role not in ["admin"]:
+    if user.role != "admin":
         return "უფლება არ გქონიათ", 403
 
     problem = Problem.query.get(problem_id)
     if not problem:
         return "Problem not found.", 404
 
-    # Remove image file
+    # თუ გინდა Cloudinary-დან წაშლა:
     try:
-        os.remove(os.path.join(UPLOAD_FOLDER, problem.image_filename))
-    except Exception:
-        pass
+        # public_id = ბმულიდან ვიღებთ სახელის ნაწილს (უშუალო სახელი)
+        public_id = problem.image_filename.split("/")[-1].split(".")[0]
+        cloudinary.uploader.destroy(public_id)
+    except Exception as e:
+        print("Cloudinary delete error:", e)
 
     db.session.delete(problem)
     db.session.commit()
@@ -448,7 +461,7 @@ def get_personal_problems():
     return jsonify([
         {
             "id": p.id,
-            "image_url": url_for("uploaded_file", filename=p.image_filename),
+            "image_url": p.image_filename,
             "tags": p.tags or "",
             "difficulty": p.difficulty
         }
