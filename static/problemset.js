@@ -30,29 +30,37 @@ window.onload = () => {
 };
 
 function loadProblems() {
-  fetch("/api/problems")
-    .then(res => res.json())
-    .then(data => {
-      const container = document.getElementById("problemList");
-      container.innerHTML = "";
-      problems = [];
+  const container = document.getElementById("problemList");
+  container.innerHTML = "";
+  problems = [];
 
-      data.forEach(p => {
-        const tagsArray = p.tags ? p.tags.split(",").map(t => t.trim()) : [];
-        const card = createProblemCard(p.id, p.difficulty, tagsArray, p.image_url);
-        container.appendChild(card);
-        problems.push({
-          id: p.id,
-          difficulty: p.difficulty,
-          tags: tagsArray,
-          imageUrl: p.image_url,
-          element: card
-        });
+  Promise.all([
+    fetch("/api/problems").then(res => res.json()),
+    fetch("/api/personal_problems").then(res => res.json())
+  ])
+  .then(([publicData, personalData]) => {
+    const allProblems = [
+      ...publicData.map(p => ({ ...p, source: "public" })),
+      ...personalData.map(p => ({ ...p, source: "personal" }))
+    ];
+
+    allProblems.forEach(p => {
+      const tagsArray = p.tags ? p.tags.split(",").map(t => t.trim()) : [];
+      const card = createProblemCard(p.id, p.difficulty, tagsArray, p.image_url, p.source);
+      container.appendChild(card);
+      problems.push({
+        id: p.id,
+        difficulty: p.difficulty,
+        tags: tagsArray,
+        imageUrl: p.image_url,
+        source: p.source,
+        element: card
       });
+    });
 
-      applyFilters();
-    })
-    .catch(err => console.error("Error loading problems:", err));
+    applyFilters();
+  })
+  .catch(err => console.error("Error loading problems:", err));
 }
 
 function createProblemCard(id, difficulty, tags, imageUrl, source) {
