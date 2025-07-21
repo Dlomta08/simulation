@@ -31,7 +31,12 @@
   <div id="mode-selection" class="mode-selections" >
     <p>აირჩიეთ რეჟიმი:</p>
     <button onclick="startQuiz(false)">ჩვეულებრივი</button>
-    <button onclick="startQuiz(true)">სიმულაცია</button>
+    <button onclick="timer()">სიმულაცია</button>
+    <div id="time-selection" class="hidden">
+    <label for="customTime"><strong>აირჩიეთ დრო (წუთებში):</strong></label>
+    <input type="number" id="customTime" value="180" min="1" max="300" style="width: 70px;">
+    <button onclick="startQuiz(true)">დაწყება</button>
+  </div>
   </div>
   
   <!-- Timer Display -->

@@ -100,3 +100,16 @@ body.dark-mode .mode-selections button:hover {
 #account-info a:hover {
   text-decoration: underline;
 }
+
+#time-selection {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+
+#time-selection.visible {
+  max-height: 200px; /* enough height to fully expand */
+  opacity: 1;
+  margin-top: 10px;
+}

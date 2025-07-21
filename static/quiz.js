@@ -2,6 +2,10 @@ let timerInterval;
 let timeLeft = 3 * 60 * 60;
 let simulationMode = false;
 const fox = ["ა)", "ბ)", "გ)", "დ)", "ე)", "ვ)"];
+function timer() {
+  const timeBox = document.getElementById("time-selection");
+  timeBox.classList.add("visible");
+}
 function startQuiz(withTimer) {
   simulationMode = withTimer; 
   document.getElementById("mode-selection").style.display = "none";
@@ -9,6 +13,15 @@ function startQuiz(withTimer) {
   quizForm.style.display = "block";
   renderQuiz();
   if (withTimer) {
+    const customMinutesInput = document.getElementById("customTime");
+    let customMinutes = 180; // fallback
+    if (customMinutesInput) {
+      const inputVal = parseInt(customMinutesInput.value);
+      if (!isNaN(inputVal) && inputVal >= 1) {
+        customMinutes = inputVal;
+      }
+    }
+    timeLeft = customMinutes * 60;
     document.getElementById("timer").style.display = "block";
     updateTimerDisplay();
     timerInterval = setInterval(() => {

@@ -55,7 +55,7 @@ function loadProblems() {
     .catch(err => console.error("Error loading problems:", err));
 }
 
-function createProblemCard(id, difficulty, tags, imageUrl) {
+function createProblemCard(id, difficulty, tags, imageUrl, source) {
   const card = document.createElement("div");
   card.className = "problem-card";
 
@@ -67,6 +67,7 @@ function createProblemCard(id, difficulty, tags, imageUrl) {
     </div>
     <p><strong>სირთულე:</strong> ${difficulty}</p>
     <p><strong>თემები:</strong> ${tags.map(t => `<span class="tag">${t}</span>`).join(", ")}</p>
+    <p><strong>წყარო:</strong> ${source === "personal" ? "პირადი" : "საჯარო"}</p>
     <button class="delete-button" style="margin-top:5px;background:#f44336;color:white;">წაშლა</button>
   `;
 
@@ -81,6 +82,7 @@ function addProblem() {
   const imageInput = document.getElementById("problemImage");
   const tags = document.getElementById("tags").value;
   const difficulty = document.getElementById("difficulty").value;
+  const target = document.getElementById("problemTarget").value;
 
   if (!imageInput.files[0]) {
     alert("Please upload an image.");
@@ -92,7 +94,9 @@ function addProblem() {
   formData.append("tags", tags);
   formData.append("difficulty", difficulty);
 
-  fetch("/upload_problem", {
+  const url = target === "public" ? "/upload_problem" : "/upload_personal_problem";
+
+  fetch(url, {
     method: "POST",
     body: formData
   })
@@ -102,8 +106,7 @@ function addProblem() {
     })
     .then(() => {
       alert("ამოცანა დამატებულია!");
-      loadProblems();
-      // Reset form inputs
+      loadProblems(); // will load both public and personal
       imageInput.value = "";
       document.getElementById("tags").value = "";
       document.getElementById("difficulty").value = "3";
@@ -111,13 +114,17 @@ function addProblem() {
     .catch(err => alert(err.message));
 }
 
-function deleteProblem(problemId, card) {
+
+function deleteProblem(problemId, card, source) {
   if (!confirm("ნამდვილად გსურთ ამ ამოცანის წაშლა?")) return;
 
-  fetch(`/api/delete_problem/${problemId}`, { method: "POST" })
+  const url = source === "personal"
+    ? `/api/delete_personal_problem/${problemId}`
+    : `/api/delete_problem/${problemId}`;
+
+  fetch(url, { method: "POST" })
     .then(res => {
       if (!res.ok) throw new Error("წაშლა ვერ განხორციელდა.");
-      // Remove from DOM and array
       card.remove();
       problems = problems.filter(p => p.id !== problemId);
       renderQuizPreview();
@@ -125,6 +132,7 @@ function deleteProblem(problemId, card) {
     })
     .catch(err => alert(err.message));
 }
+
 
 function toggleSpoiler(button) {
   const content = button.nextElementSibling;
@@ -136,22 +144,33 @@ function toggleSpoiler(button) {
 function applyFilters() {
   const minDiff = parseInt(document.getElementById("filterMinDifficulty").value);
   const maxDiff = parseInt(document.getElementById("filterMaxDifficulty").value);
-
   const tagFilter = document.getElementById("filterTags").value
     .toLowerCase()
     .split(",")
     .map(t => t.trim())
     .filter(t => t);
 
-  problems.forEach(p => {
-    let matchesDifficulty = p.difficulty >= minDiff && p.difficulty <= maxDiff;
-    let matchesTags =
+  const sourceFilter = document.getElementById("filterSource").value;
+  const container = document.getElementById("problemList");
+  container.innerHTML = "";
+  const sorted = [...problems];
+  if (sourceFilter === "both") {
+    sorted.sort((a, b) => (a.source === "personal" ? -1 : 1));
+  }
+  sorted.forEach(p => {
+    const matchesDifficulty = p.difficulty >= minDiff && p.difficulty <= maxDiff;
+    const matchesTags =
       tagFilter.length === 0 ||
       tagFilter.every(tag => p.tags.map(t => t.toLowerCase()).includes(tag));
+    const matchesSource =
+      sourceFilter === "both" || p.source === sourceFilter;
 
-    p.element.style.display = (matchesDifficulty && matchesTags) ? "block" : "none";
+    const visible = matchesDifficulty && matchesTags && matchesSource;
+    p.element.style.display = visible ? "block" : "none";
+    if (visible) container.appendChild(p.element);
   });
 }
+
 
 function renderQuizPreview() {
   const preview = document.getElementById('quizPreview');
