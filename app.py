@@ -457,7 +457,7 @@ def upload_personal_problem():
 
     problem = PersonalProblem(
         user_id=user.id,
-        image_filename=image_url,  # now a full Cloudinary URL
+        image_filename=image_url,
         tags=tags,
         difficulty=difficulty
     )
