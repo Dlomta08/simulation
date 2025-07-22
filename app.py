@@ -187,7 +187,7 @@ def get_problems():
         for p in problems
     ])
 
-@app.route("/api/delete_problem/<int:problem_id>", methods=["POST"])
+
 @app.route("/api/delete_problem/<int:problem_id>", methods=["POST"])
 def delete_problem(problem_id):
     if "username" not in session:
