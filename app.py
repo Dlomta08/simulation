@@ -53,6 +53,8 @@ class Problem(db.Model):
     image_filename = db.Column(db.String(255), nullable=False)
     tags = db.Column(db.String(255))
     difficulty = db.Column(db.Integer)
+    owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    is_private = db.Column(db.Boolean, default=False)
 
 # Create DB tables
 with app.app_context():
@@ -163,46 +165,62 @@ def upload_problem():
 
     difficulty = int(request.form.get("difficulty", 3))
     tags = request.form.get("tags", "")
+    user = User.query.filter_by(username=session["username"]).first()
+
 
     problem = Problem(
         image_filename=image_url,
         tags=tags,
-        difficulty=difficulty
+        difficulty=difficulty,
+        is_private=(request.form.get("problemTarget") == "პირადი"),
+        owner_id=user.id  # save who uploaded it
     )
     db.session.add(problem)
     db.session.commit()
 
     return "Problem uploaded."
 
+
 @app.route("/api/problems")
 def get_problems():
-    problems = Problem.query.all()
-    return jsonify([
-        {
+    if "username" not in session:
+        return "Unauthorized", 403
+
+    user = User.query.filter_by(username=session["username"]).first()
+
+    problems = Problem.query.filter(
+        (Problem.is_private == False) |
+        ((Problem.is_private == True) & (Problem.owner_id == user.id))
+    ).all()
+
+    result = []
+    for p in problems:
+        result.append({
             "id": p.id,
-            "image_url": p.image_filename,  # შეცვლილია: ახლა პირდაპირ ბმულია
-            "tags": p.tags or "",
-            "difficulty": p.difficulty
-        }
-        for p in problems
-    ])
+            "difficulty": p.difficulty,
+            "tags": p.tags,
+            "image_url": p.image_filename,
+            "is_private": p.is_private
+        })
+    return jsonify(result)
 
 
 @app.route("/api/delete_problem/<int:problem_id>", methods=["POST"])
 def delete_problem(problem_id):
     if "username" not in session:
         return "ავტორიზაცია საჭიროა", 403
-    
-    if session["role"] not in ["მასწავლებელი", "admin"]:
-        return "Permission denied.", 403
-    
-    user = User.query.filter_by(username=session["username"]).first()
-    if user.role != "admin":
-        return "უფლება არ გქონიათ", 403
 
+    user = User.query.filter_by(username=session["username"]).first()
     problem = Problem.query.get(problem_id)
+
     if not problem:
         return "Problem not found.", 404
+
+    if problem.is_private and problem.owner_id != user.id and user.role != "admin":
+        return "Access denied", 403
+
+    if user.role not in ["მასწავლებელი", "admin"]:
+        return "Permission denied.", 403
 
     # Try deleting from Cloudinary
     try:
