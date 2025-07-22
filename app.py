@@ -10,17 +10,16 @@ import os
 from flask_migrate import Migrate
 
 
-import cloudinary # type: ignore
-import cloudinary.uploader # type: ignore
-import cloudinary.api # type: ignore
+import os
+import cloudinary
+import cloudinary.uploader
 
-# Cloudinary config
+# Config from Railway environment variables
 cloudinary.config(
-    cloud_name="dtm5ozm6d",
-    api_key="542876597858634",
-    api_secret="abcdefghijklmnop"
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
-
 
 
 app = Flask(__name__)
@@ -461,7 +460,7 @@ def get_personal_problems():
     return jsonify([
         {
             "id": p.id,
-            "image_url": p.image_filename,
+            "image_url": p.image_filename,  # now this is a URL
             "tags": p.tags or "",
             "difficulty": p.difficulty
         }
