@@ -20,6 +20,10 @@ cloudinary.config(
     api_key=os.getenv("CLOUDINARY_API_KEY"),
     api_secret=os.getenv("CLOUDINARY_API_SECRET")
 )
+print("Cloudinary Config:")
+print("cloud_name:", repr(os.getenv("CLOUDINARY_CLOUD_NAME")))
+print("api_key:", repr(os.getenv("CLOUDINARY_API_KEY")))
+print("api_secret:", repr(os.getenv("CLOUDINARY_API_SECRET")))
 
 
 app = Flask(__name__)
