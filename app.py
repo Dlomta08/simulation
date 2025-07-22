@@ -233,6 +233,7 @@ def delete_problem(problem_id):
     db.session.commit()
     return "Problem deleted."
 
+
 @app.route("/profile")
 def profile():
     if "username" not in session:
