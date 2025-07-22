@@ -11,8 +11,8 @@ from flask_migrate import Migrate
 
 
 import os
-import cloudinary
-import cloudinary.uploader
+import cloudinary # type: ignore
+import cloudinary.uploader # type: ignore
 
 # Config from Railway environment variables
 cloudinary.config(
