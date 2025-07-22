@@ -16,9 +16,9 @@ import cloudinary.uploader
 
 # Config from Railway environment variables
 cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+    cloud_name=os.getenv("dtm5ozm6d"),
+    api_key=os.getenv("542876597858634"),
+    api_secret=os.getenv("-9zgUWp_avBBHNYXKJpDDPpZExQ")
 )
 
 
