@@ -498,6 +498,7 @@ def delete_problem(problem_id):
         return jsonify({"message": "Problem deleted successfully"})
     except Exception as e:
         db.session.rollback()
+        print(f"Deletion failed: {e}")  # ლოგი სერვერზე
         return jsonify({"error": f"Deletion failed: {str(e)}"}), 500
 
 if __name__ == "__main__":

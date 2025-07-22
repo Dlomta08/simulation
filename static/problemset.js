@@ -119,8 +119,11 @@ function deleteProblem(problemId, card, source) {
   if (!confirm("ნამდვილად გსურთ ამ ამოცანის წაშლა?")) return;
 
   fetch(`/api/delete_problem/${problemId}`, { method: "DELETE" })
-    .then(res => {
-      if (!res.ok) throw new Error("წაშლა ვერ განხორციელდა.");
+    .then(async res => {
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`წაშლა ვერ განხორციელდა: ${errorText}`);
+      }
       card.remove();
       problems = problems.filter(p => p.id !== problemId);
       renderQuizPreview();
