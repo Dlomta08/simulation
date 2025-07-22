@@ -73,7 +73,7 @@ function createProblemCard(id, difficulty, tags, imageUrl, source) {
   `;
 
   card.querySelector(".delete-button").addEventListener("click", () => {
-    deleteProblem(id, card);
+    deleteProblem(id, card, source);
   });
 
   return card;
@@ -115,9 +115,11 @@ function addProblem() {
 }
 
 
-function deleteProblem(problemId, card) {
+function deleteProblem(problemId, card, source) {
   if (!confirm("ნამდვილად გსურთ ამ ამოცანის წაშლა?")) return;
 
+  // საჯარო და პირადი შემთხვევაში სხვადასხვანაირი URL-ს გამოგზავნა, ან unify-დე ერთში როგორც ზემოთ
+  // აქ მაგალითად ორივე ერთიანი url გამოიყენე
   fetch(`/api/delete_problem/${problemId}`, { method: "DELETE" })
     .then(res => {
       if (!res.ok) throw new Error("წაშლა ვერ განხორციელდა.");
