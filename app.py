@@ -133,6 +133,7 @@ def whoami():
 
 @app.route("/upload_problem", methods=["POST"])
 def upload_problem():
+    print("Upload route called!") 
     if "image" not in request.files:
         return "No image file.", 400
 
