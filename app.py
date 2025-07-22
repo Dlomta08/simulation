@@ -506,23 +506,22 @@ def delete_problem(problem_id):
     if not problem:
         return jsonify({"error": "Problem not found"}), 404
 
-    # საჯარო ამოცანების წაშლის ლოგიკა
+    # თუ ამოცანა პირადი არაა (საჯარო), მხოლოდ ადმინს შეუძლია წაშლა
     if not problem.is_private:
-        # მხოლოდ ადმინს აქვს უფლება წაშალოს საჯარო ამოცანა
         if user.role != "ადმინი":
-            return jsonify({"error": "Not authorized"}), 403
+            return jsonify({"error": "Not authorized to delete public problem"}), 403
     else:
-        # პირად ამოცანაზე წაშლა ავტორს ან ადმინს შეუძლია
+        # პირად ამოცანაზე ავტორს ან ადმინს აქვს უფლება წაშალოს
         if problem.owner_id != user.id and user.role != "ადმინი":
-            return jsonify({"error": "Not authorized"}), 403
+            return jsonify({"error": "Not authorized to delete personal problem"}), 403
 
     try:
         db.session.delete(problem)
         db.session.commit()
-        return jsonify({"message": "Problem deleted"})
+        return jsonify({"message": "Problem deleted successfully"})
     except Exception as e:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Deletion failed: {str(e)}"}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

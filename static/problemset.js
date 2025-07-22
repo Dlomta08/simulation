@@ -118,8 +118,6 @@ function addProblem() {
 function deleteProblem(problemId, card, source) {
   if (!confirm("ნამდვილად გსურთ ამ ამოცანის წაშლა?")) return;
 
-  // საჯარო და პირადი შემთხვევაში სხვადასხვანაირი URL-ს გამოგზავნა, ან unify-დე ერთში როგორც ზემოთ
-  // აქ მაგალითად ორივე ერთიანი url გამოიყენე
   fetch(`/api/delete_problem/${problemId}`, { method: "DELETE" })
     .then(res => {
       if (!res.ok) throw new Error("წაშლა ვერ განხორციელდა.");
@@ -130,6 +128,7 @@ function deleteProblem(problemId, card, source) {
     })
     .catch(err => alert(err.message));
 }
+
 
 
 function toggleSpoiler(button) {
