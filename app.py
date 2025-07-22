@@ -386,16 +386,6 @@ def upload_personal_problem():
 
     return "Personal problem uploaded."
 
-def extract_public_id(cloudinary_url):
-    try:
-        parts = urlparse(cloudinary_url).path.split('/')
-        filename = parts[-1].split('.')[0]  # without extension
-        folder = '/'.join(parts[3:-1])      # after '/upload/'
-        return f"{folder}/{filename}" if folder else filename
-    except Exception as e:
-        print("Failed to extract public_id:", e)
-        return None
-
 
 @app.route("/api/personal_problems")
 def get_personal_problems():
@@ -439,6 +429,70 @@ def delete_personal_problem(problem_id):
     db.session.delete(problem)
     db.session.commit()
     return "Deleted"
+
+@app.route("/upload_problem", methods=["POST"])
+def upload_problem():
+    if "username" not in session:
+        return "Unauthorized", 403
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found", 404
+
+    if "image" not in request.files:
+        return "No image file.", 400
+
+    file = request.files["image"]
+    if file.filename == "" or not allowed_file(file.filename):
+        return "Invalid file.", 400
+
+    try:
+        upload_result = cloudinary.uploader.upload(file)
+        image_url = upload_result["secure_url"]
+    except Exception as e:
+        return f"Cloudinary upload failed: {str(e)}", 500
+
+    difficulty = int(request.form.get("difficulty", 3))
+    tags = request.form.get("tags", "")
+    is_private = request.form.get("is_private", "true") == "true"
+
+    problem = Problem(
+        owner_id=user.id,
+        image_filename=image_url,
+        tags=tags,
+        difficulty=difficulty,
+        is_private=is_private
+    )
+    db.session.add(problem)
+    db.session.commit()
+
+    return "Problem uploaded."
+
+@app.route("/api/problems")
+def get_problems():
+    if "username" not in session:
+        return "Unauthorized", 403
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found", 404
+
+    problems = Problem.query.filter(
+        (Problem.is_private == False) |
+        ((Problem.is_private == True) & (Problem.owner_id == user.id))
+    ).all()
+
+    return jsonify([
+        {
+            "id": p.id,
+            "image_url": p.image_filename,
+            "tags": p.tags or "",
+            "difficulty": p.difficulty,
+            "source": "personal" if p.owner_id == user.id and p.is_private else "public"
+        }
+        for p in problems
+    ])
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
