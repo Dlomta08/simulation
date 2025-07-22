@@ -136,47 +136,6 @@ def whoami():
         "role": session.get("role")
     })
 
-@app.route("/api/personal_problems")
-def get_personal_problems():
-    if "username" not in session:
-        return "Unauthorized", 403
-
-    user = User.query.filter_by(username=session["username"]).first()
-    if not user:
-        return "User not found", 404
-
-    problems = PersonalProblem.query.filter_by(user_id=user.id).all()
-    return jsonify([
-        {
-            "id": p.id,
-            "image_url": p.image_filename,
-            "tags": p.tags or "",
-            "difficulty": p.difficulty
-        }
-        for p in problems
-    ])
-
-
-@app.route("/api/delete_personal_problem/<int:problem_id>", methods=["POST"])
-def delete_personal_problem(problem_id):
-    if "username" not in session:
-        return "Unauthorized", 403
-
-    user = User.query.filter_by(username=session["username"]).first()
-    problem = PersonalProblem.query.get(problem_id)
-
-    if not problem or problem.user_id != user.id:
-        return "Not found or no permission", 404
-
-    try:
-        public_id = problem.image_filename.split("/")[-1].split(".")[0]
-        cloudinary.uploader.destroy(public_id)
-    except Exception as e:
-        print("Cloudinary delete error:", e)
-
-    db.session.delete(problem)
-    db.session.commit()
-    return "Deleted"
 
 
 @app.route("/profile")
