@@ -430,7 +430,6 @@ class PersonalProblem(db.Model):
     user = db.relationship("User", backref="personal_problems")
 
 @app.route("/upload_personal_problem", methods=["POST"])
-@app.route("/upload_personal_problem", methods=["POST"])
 def upload_personal_problem():
     if "username" not in session:
         return "Unauthorized", 403
