@@ -188,6 +188,7 @@ def get_problems():
     ])
 
 @app.route("/api/delete_problem/<int:problem_id>", methods=["POST"])
+@app.route("/api/delete_problem/<int:problem_id>", methods=["POST"])
 def delete_problem(problem_id):
     if "username" not in session:
         return "ავტორიზაცია საჭიროა", 403
@@ -203,9 +204,8 @@ def delete_problem(problem_id):
     if not problem:
         return "Problem not found.", 404
 
-    # თუ გინდა Cloudinary-დან წაშლა:
+    # Try deleting from Cloudinary
     try:
-        # public_id = ბმულიდან ვიღებთ სახელის ნაწილს (უშუალო სახელი)
         public_id = problem.image_filename.split("/")[-1].split(".")[0]
         cloudinary.uploader.destroy(public_id)
     except Exception as e:
