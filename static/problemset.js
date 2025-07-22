@@ -73,7 +73,7 @@ function createProblemCard(id, difficulty, tags, imageUrl, source) {
   `;
 
   card.querySelector(".delete-button").addEventListener("click", () => {
-    deleteProblem(id, card, source);
+    deleteProblem(id, card);
   });
 
   return card;
