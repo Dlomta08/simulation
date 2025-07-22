@@ -115,14 +115,10 @@ function addProblem() {
 }
 
 
-function deleteProblem(problemId, card, source) {
+function deleteProblem(problemId, card) {
   if (!confirm("ნამდვილად გსურთ ამ ამოცანის წაშლა?")) return;
 
-  const url = source === "personal"
-    ? `/api/delete_personal_problem/${problemId}`
-    : `/api/delete_problem/${problemId}`;
-
-  fetch(url, { method: "POST" })
+  fetch(`/api/delete_problem/${problemId}`, { method: "DELETE" })
     .then(res => {
       if (!res.ok) throw new Error("წაშლა ვერ განხორციელდა.");
       card.remove();

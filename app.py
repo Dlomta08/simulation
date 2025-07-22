@@ -493,6 +493,26 @@ def get_problems():
         for p in problems
     ])
 
+@app.route("/api/delete_problem/<int:problem_id>", methods=["DELETE"])
+def delete_problem(problem_id):
+    if "username" not in session:
+        return "Unauthorized", 403
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found", 404
+
+    problem = Problem.query.get(problem_id)
+    if not problem:
+        return "Problem not found", 404
+
+    # მხოლოდ პირად ამოცანებს შეუძლია წაშლა მომხმარებელმა
+    if not problem.is_private or problem.owner_id != user.id:
+        return "Forbidden", 403
+
+    db.session.delete(problem)
+    db.session.commit()
+    return jsonify({"success": True})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
