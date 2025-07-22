@@ -485,11 +485,11 @@ def delete_problem(problem_id):
 
     # თუ ამოცანა პირადი არაა (საჯარო), მხოლოდ ადმინს შეუძლია წაშლა
     if not problem.is_private:
-        if user.role != "ადმინი":
+        if user.role != "admin":
             return jsonify({"error": "Not authorized to delete public problem"}), 403
     else:
         # პირად ამოცანაზე ავტორს ან ადმინს აქვს უფლება წაშალოს
-        if problem.owner_id != user.id and user.role != "ადმინი":
+        if problem.owner_id != user.id and user.role != "admin":
             return jsonify({"error": "Not authorized to delete personal problem"}), 403
 
     try:
