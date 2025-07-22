@@ -407,29 +407,6 @@ def get_personal_problems():
         for p in problems
     ])
 
-@app.route("/api/delete_personal_problem/<int:problem_id>", methods=["POST"])
-def delete_personal_problem(problem_id):
-    if "username" not in session:
-        return "Unauthorized", 403
-
-    user = User.query.filter_by(username=session["username"]).first()
-    problem = PersonalProblem.query.get(problem_id)
-
-    if not problem or problem.user_id != user.id:
-        return "Not found or no permission", 404
-
-    # Remove image from Cloudinary
-    try:
-        public_id = extract_public_id(problem.image_filename)
-        if public_id:
-            cloudinary.uploader.destroy(public_id)
-    except Exception as e:
-        print("Cloudinary delete error:", e)
-
-    db.session.delete(problem)
-    db.session.commit()
-    return "Deleted"
-
 @app.route("/upload_problem", methods=["POST"])
 def upload_problem():
     if "username" not in session:
