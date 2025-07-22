@@ -448,6 +448,7 @@ class PersonalProblem(db.Model):
     user = db.relationship("User", backref="personal_problems")
 
 @app.route("/upload_personal_problem", methods=["POST"])
+@app.route("/upload_personal_problem", methods=["POST"])
 def upload_personal_problem():
     if "username" not in session:
         return "Unauthorized", 403
@@ -463,15 +464,19 @@ def upload_personal_problem():
     if file.filename == "" or not allowed_file(file.filename):
         return "Invalid file.", 400
 
-    filename = secure_filename(file.filename)
-    file.save(os.path.join(UPLOAD_FOLDER, filename))
+    # ✅ Upload to Cloudinary
+    try:
+        upload_result = cloudinary.uploader.upload(file)
+        image_url = upload_result["secure_url"]
+    except Exception as e:
+        return f"Cloudinary upload failed: {str(e)}", 500
 
     difficulty = int(request.form.get("difficulty", 3))
     tags = request.form.get("tags", "")
 
     problem = PersonalProblem(
         user_id=user.id,
-        image_filename=filename,
+        image_filename=image_url,  # now a full Cloudinary URL
         tags=tags,
         difficulty=difficulty
     )
@@ -493,7 +498,7 @@ def get_personal_problems():
     return jsonify([
         {
             "id": p.id,
-            "image_url": p.image_filename,  # now this is a URL
+            "image_url": url_for("static", filename="uploads/" + p.image_filename),  # ✅ აბრუნებს სრულ ბმულს
             "tags": p.tags or "",
             "difficulty": p.difficulty
         }
@@ -513,9 +518,11 @@ def delete_personal_problem(problem_id):
 
     # Remove image
     try:
-        os.remove(os.path.join(UPLOAD_FOLDER, problem.image_filename))
-    except:
-        pass
+        public_id = problem.image_filename.split("/")[-1].split(".")[0]
+        cloudinary.uploader.destroy(public_id)
+    except Exception as e:
+        print("Cloudinary delete error:", e)
+
 
     db.session.delete(problem)
     db.session.commit()
