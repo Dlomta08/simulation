@@ -133,26 +133,35 @@ def whoami():
 
 @app.route("/upload_problem", methods=["POST"])
 def upload_problem():
-    print("Upload route called!") 
+    print("Upload route called!")
+
     if "image" not in request.files:
+        print("No image in request.files")
         return "No image file.", 400
 
     if session["role"] != "მასწავლებელი" and session["role"] != "admin":
+        print("Permission denied")
         return "Permission denied.", 403
 
     file = request.files["image"]
     if file.filename == "" or not allowed_file(file.filename):
+        print("Invalid file:", file.filename)
         return "Invalid file.", 400
 
-    # Upload to Cloudinary instead of saving locally
-    upload_result = cloudinary.uploader.upload(file)
-    image_url = upload_result["secure_url"]
+    try:
+        print("Uploading to Cloudinary...")
+        upload_result = cloudinary.uploader.upload(file)
+        image_url = upload_result["secure_url"]
+        print("Image uploaded:", image_url)
+    except Exception as e:
+        print("❌ Cloudinary error:", str(e))
+        return f"Cloudinary upload failed: {str(e)}", 500
 
     difficulty = int(request.form.get("difficulty", 3))
     tags = request.form.get("tags", "")
 
     problem = Problem(
-        image_filename=image_url,  # now this is a URL
+        image_filename=image_url,
         tags=tags,
         difficulty=difficulty
     )
