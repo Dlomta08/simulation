@@ -136,43 +136,6 @@ def whoami():
         "role": session.get("role")
     })
 
-@app.route("/upload_personal_problem", methods=["POST"])
-def upload_personal_problem():
-    if "username" not in session:
-        return "Unauthorized", 403
-
-    user = User.query.filter_by(username=session["username"]).first()
-    if not user:
-        return "User not found", 404
-
-    if "image" not in request.files:
-        return "No image file.", 400
-
-    file = request.files["image"]
-    if file.filename == "" or not allowed_file(file.filename):
-        return "Invalid file.", 400
-
-    try:
-        upload_result = cloudinary.uploader.upload(file)
-        image_url = upload_result["secure_url"]
-    except Exception as e:
-        return f"Cloudinary upload failed: {str(e)}", 500
-
-    difficulty = int(request.form.get("difficulty", 3))
-    tags = request.form.get("tags", "")
-
-    problem = PersonalProblem(
-        user_id=user.id,
-        image_filename=image_url,
-        tags=tags,
-        difficulty=difficulty
-    )
-    db.session.add(problem)
-    db.session.commit()
-
-    return "Personal problem uploaded."
-
-
 @app.route("/api/personal_problems")
 def get_personal_problems():
     if "username" not in session:
