@@ -136,8 +136,6 @@ def whoami():
         "role": session.get("role")
     })
 
-
-
 @app.route("/profile")
 def profile():
     if "username" not in session:
@@ -388,6 +386,17 @@ def upload_personal_problem():
 
     return "Personal problem uploaded."
 
+def extract_public_id(cloudinary_url):
+    try:
+        parts = urlparse(cloudinary_url).path.split('/')
+        filename = parts[-1].split('.')[0]  # without extension
+        folder = '/'.join(parts[3:-1])      # after '/upload/'
+        return f"{folder}/{filename}" if folder else filename
+    except Exception as e:
+        print("Failed to extract public_id:", e)
+        return None
+
+
 @app.route("/api/personal_problems")
 def get_personal_problems():
     if "username" not in session:
@@ -401,7 +410,7 @@ def get_personal_problems():
     return jsonify([
         {
             "id": p.id,
-            "image_url": url_for("static", filename="uploads/" + p.image_filename),  # ✅ აბრუნებს სრულ ბმულს
+            "image_url": p.image_filename,  # Already full Cloudinary URL
             "tags": p.tags or "",
             "difficulty": p.difficulty
         }
@@ -419,13 +428,13 @@ def delete_personal_problem(problem_id):
     if not problem or problem.user_id != user.id:
         return "Not found or no permission", 404
 
-    # Remove image
+    # Remove image from Cloudinary
     try:
-        public_id = problem.image_filename.split("/")[-1].split(".")[0]
-        cloudinary.uploader.destroy(public_id)
+        public_id = extract_public_id(problem.image_filename)
+        if public_id:
+            cloudinary.uploader.destroy(public_id)
     except Exception as e:
         print("Cloudinary delete error:", e)
-
 
     db.session.delete(problem)
     db.session.commit()
