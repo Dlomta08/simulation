@@ -4,7 +4,12 @@ let simulationMode = false;
 const fox = ["ა)", "ბ)", "გ)", "დ)", "ე)", "ვ)"];
 function timer() {
   const timeBox = document.getElementById("time-selection");
-  timeBox.classList.add("visible");
+  simulationMode ^= 1;
+  if (simulationMode) {
+    timeBox.classList.add("visible");
+  } else {
+    timeBox.classList.remove("visible");
+  }
 }
 function startQuiz(withTimer) {
   simulationMode = withTimer; 
