@@ -20,14 +20,19 @@
   <div id="quizPreview" style="min-height:100px; border:1px solid #ccc; padding:10px;"></div>
   <button onclick="generateQuizPDF()">ტესტის შექმნა</button>
   <button onclick="shuffleQuiz()">თანმიმდევრობის არევა</button>
+
   <h1>ამოცანები</h1>
 
-  <button onclick="toggleForm()">ამოცანის დამატება</button>
+  <button onclick="toggleTypeButtons()">ამოცანის დამატება</button>
 
-  <div id="problemForm">
-    <label for="problemImage"><strong>ატვირთეთ ამოცანა:</strong></label>
-    <input type="file" id="problemImage" accept="image/*"><br><br>
+  <div id="typeButtons" style="display:none; margin: 10px 0;">
+    <button onclick="showForm('image')">📷 ფოტოს ატვირთვით</button>
+    <button onclick="showForm('word')">📝 Word-სტილის</button>
+    <button onclick="showForm('latex')">📐 LaTeX</button>
+  </div>
 
+  <!-- საერთო ინფო -->
+  <div id="commonFields" style="display:none; margin-top: 10px;">
     <label for="tags"><strong>თემები (გამოყოფილი მძიმით):</strong></label>
     <input type="text" id="tags" placeholder="მაგ. გეომეტრია, ალგებრა"><br><br>
 
@@ -39,51 +44,97 @@
       <option value=4>4</option>
       <option value=5>5</option>
     </select><br><br>
+
     <label><strong>ამოცანის წყარო:</strong></label>
     <select id="problemTarget">
       <option value="public">საჯარო</option>
       <option value="personal">პირადი</option>
     </select><br><br>
-    <button type="button" onclick="addProblem()">დამატება</button>
+  </div>
+
+  <!-- ფორმა ფოტოსთვის -->
+  <div id="formImage" style="display:none;">
+    <label for="problemImage"><strong>ატვირთეთ ამოცანა (ფოტო):</strong></label>
+    <input type="file" id="problemImage" accept="image/*"><br><br>
+    <button onclick="addProblemImage()">დამატება</button>
+  </div>
+
+  <!-- ფორმა Word-სტილის -->
+  <div id="formWord" style="display:none;">
+    <label for="problemText"><strong>შეიყვანეთ ამოცანა:</strong></label><br>
+    <textarea id="problemText" rows="6" cols="60" placeholder="აქ ჩაწერე ამოცანა..."></textarea><br><br>
+    <button onclick="addProblemWord()">დამატება</button>
+  </div>
+
+  <!-- ფორმა LaTeX -->
+  <div id="formLatex" style="display:none;">
+    <label for="problemLatex"><strong>LaTeX ამოცანა:</strong></label><br>
+    <textarea id="problemLatex" rows="6" cols="60" placeholder="მაგ. \\(a^2 + b^2 = c^2\\)"></textarea><br><br>
+    <button onclick="addProblemLatex()">დამატება</button>
   </div>
 
   <hr>
   <button onclick="toggleFilter()">ამოცანების ფილტრი</button>
   <div id="filterSection" style="display:none; margin-top: 15px;">
     <strong>სირთულის დიაპაზონი:</strong>
-    <select id="filterMinDifficulty">
-      <option value="1" selected>1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-    </select>
+    <select id="filterMinDifficulty"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
     -
-    <select id="filterMaxDifficulty">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5" selected>5</option>
-    </select><br><br>
+    <select id="filterMaxDifficulty"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5" selected>5</option></select><br><br>
+
     <label for="filterTags"><strong>გაფილტრეთ თემები (გამოყოფილი მძიმით):</strong></label>
-    <input type="text" id="filterTags" placeholder="მაგ. გეომეტრია, ალგებრა" style="margin-left: 10px;">
-    <br><br>
+    <input type="text" id="filterTags" placeholder="მაგ. გეომეტრია, ალგებრა"><br><br>
+
     <label for="filterSource"><strong>ამოცანის წყარო:</strong></label>
     <select id="filterSource">
       <option value="both" selected>ყველა</option>
       <option value="personal">პირადი</option>
       <option value="public">საჯარო</option>
-    </select>
-    <br><br>
+    </select><br><br>
+
     <button onclick="applyFilters()">გაფილტვრა</button>
   </div>
 
   <div id="problemList"></div>
 
+  <script>
+    function toggleTypeButtons() {
+      const box = document.getElementById('typeButtons');
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function showForm(type) {
+      document.getElementById('formImage').style.display = 'none';
+      document.getElementById('formWord').style.display = 'none';
+      document.getElementById('formLatex').style.display = 'none';
+      document.getElementById('commonFields').style.display = 'block';
+
+      if (type === 'image') {
+        document.getElementById('formImage').style.display = 'block';
+      } else if (type === 'word') {
+        document.getElementById('formWord').style.display = 'block';
+      } else if (type === 'latex') {
+        document.getElementById('formLatex').style.display = 'block';
+      }
+    }
+
+    function addProblemImage() {
+      // აქ დაამატე სერვერზე ფოტოს გაგზავნის ლოგიკა
+      alert("ფოტოს ამოცანა დაემატება");
+    }
+
+    function addProblemWord() {
+      // აქ დაამატე ტექსტური ამოცანის გაგზავნის ლოგიკა
+      alert("Word-ის ტიპის ამოცანა დაემატება");
+    }
+
+    function addProblemLatex() {
+      // აქ დაამატე ლატექსის გაგზავნის ლოგიკა
+      alert("LaTeX ამოცანა დაემატება");
+    }
+  </script>
+
   <script src="problemset.js"></script>
   <script src="darkmode.js"></script>
   <script src="account.js"></script>
-  <!-- <script src="randomsymb.js"></script> -->
 </body>
 </html>
