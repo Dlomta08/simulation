@@ -64,8 +64,7 @@ with app.app_context():
 
 # Helpers
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Routes
 
@@ -136,103 +135,6 @@ def whoami():
         "username": session.get("username"),
         "role": session.get("role")
     })
-
-@app.route("/upload_problem", methods=["POST"])
-def upload_problem():
-    print("Upload route called!")
-
-    if "image" not in request.files:
-        print("No image in request.files")
-        return "No image file.", 400
-
-    if session["role"] != "მასწავლებელი" and session["role"] != "admin":
-        print("Permission denied")
-        return "Permission denied.", 403
-
-    file = request.files["image"]
-    if file.filename == "" or not allowed_file(file.filename):
-        print("Invalid file:", file.filename)
-        return "Invalid file.", 400
-
-    try:
-        print("Uploading to Cloudinary...")
-        upload_result = cloudinary.uploader.upload(file)
-        image_url = upload_result["secure_url"]
-        print("Image uploaded:", image_url)
-    except Exception as e:
-        print("❌ Cloudinary error:", str(e))
-        return f"Cloudinary upload failed: {str(e)}", 500
-
-    difficulty = int(request.form.get("difficulty", 3))
-    tags = request.form.get("tags", "")
-    user = User.query.filter_by(username=session["username"]).first()
-
-
-    problem = Problem(
-        image_filename=image_url,
-        tags=tags,
-        difficulty=difficulty,
-        is_private=(request.form.get("problemTarget") == "პირადი"),
-        owner_id=user.id  # save who uploaded it
-    )
-    db.session.add(problem)
-    db.session.commit()
-
-    return "Problem uploaded."
-
-
-@app.route("/api/problems")
-def get_problems():
-    if "username" not in session:
-        return "Unauthorized", 403
-
-    user = User.query.filter_by(username=session["username"]).first()
-
-    problems = Problem.query.filter(
-        (Problem.is_private == False) |
-        ((Problem.is_private == True) & (Problem.owner_id == user.id))
-    ).all()
-
-    result = []
-    for p in problems:
-        result.append({
-            "id": p.id,
-            "difficulty": p.difficulty,
-            "tags": p.tags,
-            "image_url": p.image_filename,
-            "is_private": p.is_private
-        })
-    return jsonify(result)
-
-
-@app.route("/api/delete_problem/<int:problem_id>", methods=["POST"])
-def delete_problem(problem_id):
-    if "username" not in session:
-        return "ავტორიზაცია საჭიროა", 403
-
-    user = User.query.filter_by(username=session["username"]).first()
-    problem = Problem.query.get(problem_id)
-
-    if not problem:
-        return "Problem not found.", 404
-
-    if problem.is_private and problem.owner_id != user.id and user.role != "admin":
-        return "Access denied", 403
-
-    if user.role not in ["მასწავლებელი", "admin"]:
-        return "Permission denied.", 403
-
-    # Try deleting from Cloudinary
-    try:
-        public_id = problem.image_filename.split("/")[-1].split(".")[0]
-        cloudinary.uploader.destroy(public_id)
-    except Exception as e:
-        print("Cloudinary delete error:", e)
-
-    db.session.delete(problem)
-    db.session.commit()
-    return "Problem deleted."
-
 
 @app.route("/profile")
 def profile():
@@ -373,7 +275,7 @@ def approve_teacher():
     return redirect(url_for("pending_teachers"))
 
 
-@app.route("/users_list")
+@app.route("/users_list", endpoint="list_users")
 def users_list():
     users = User.query.all()
     return render_template("users_list.html", users=users)
@@ -463,15 +365,19 @@ def upload_personal_problem():
     if file.filename == "" or not allowed_file(file.filename):
         return "Invalid file.", 400
 
-    filename = secure_filename(file.filename)
-    file.save(os.path.join(UPLOAD_FOLDER, filename))
+    # ✅ Upload to Cloudinary
+    try:
+        upload_result = cloudinary.uploader.upload(file)
+        image_url = upload_result["secure_url"]
+    except Exception as e:
+        return f"Cloudinary upload failed: {str(e)}", 500
 
     difficulty = int(request.form.get("difficulty", 3))
     tags = request.form.get("tags", "")
 
     problem = PersonalProblem(
         user_id=user.id,
-        image_filename=filename,
+        image_filename=image_url,
         tags=tags,
         difficulty=difficulty
     )
@@ -479,6 +385,7 @@ def upload_personal_problem():
     db.session.commit()
 
     return "Personal problem uploaded."
+
 
 @app.route("/api/personal_problems")
 def get_personal_problems():
@@ -493,33 +400,106 @@ def get_personal_problems():
     return jsonify([
         {
             "id": p.id,
-            "image_url": p.image_filename,  # now this is a URL
+            "image_url": p.image_filename,  # Already full Cloudinary URL
             "tags": p.tags or "",
             "difficulty": p.difficulty
         }
         for p in problems
     ])
 
-@app.route("/api/delete_personal_problem/<int:problem_id>", methods=["POST"])
-def delete_personal_problem(problem_id):
+@app.route("/upload_problem", methods=["POST"])
+def upload_problem():
     if "username" not in session:
         return "Unauthorized", 403
 
     user = User.query.filter_by(username=session["username"]).first()
-    problem = PersonalProblem.query.get(problem_id)
+    if not user:
+        return "User not found", 404
 
-    if not problem or problem.user_id != user.id:
-        return "Not found or no permission", 404
+    if "image" not in request.files:
+        return "No image file.", 400
 
-    # Remove image
+    file = request.files["image"]
+    if file.filename == "" or not allowed_file(file.filename):
+        return "Invalid file.", 400
+
     try:
-        os.remove(os.path.join(UPLOAD_FOLDER, problem.image_filename))
-    except:
-        pass
+        upload_result = cloudinary.uploader.upload(file)
+        image_url = upload_result["secure_url"]
+    except Exception as e:
+        return f"Cloudinary upload failed: {str(e)}", 500
 
-    db.session.delete(problem)
+    difficulty = int(request.form.get("difficulty", 3))
+    tags = request.form.get("tags", "")
+    is_private = request.form.get("is_private", "true") == "true"
+
+    problem = Problem(
+        owner_id=user.id,
+        image_filename=image_url,
+        tags=tags,
+        difficulty=difficulty,
+        is_private=is_private
+    )
+    db.session.add(problem)
     db.session.commit()
-    return "Deleted"
+
+    return "Problem uploaded."
+
+@app.route("/api/problems")
+def get_problems():
+    if "username" not in session:
+        return "Unauthorized", 403
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return "User not found", 404
+
+    problems = Problem.query.filter(
+        (Problem.is_private == False) |
+        ((Problem.is_private == True) & (Problem.owner_id == user.id))
+    ).all()
+
+    return jsonify([
+        {
+            "id": p.id,
+            "image_url": p.image_filename,
+            "tags": p.tags or "",
+            "difficulty": p.difficulty,
+            "source": "personal" if p.owner_id == user.id and p.is_private else "public"
+        }
+        for p in problems
+    ])
+
+@app.route("/api/delete_problem/<int:problem_id>", methods=["DELETE"])
+def delete_problem(problem_id):
+    if "username" not in session:
+        return jsonify({"error": "Not authenticated"}), 401
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    problem = Problem.query.get(problem_id)
+    if not problem:
+        return jsonify({"error": "Problem not found"}), 404
+
+    # თუ ამოცანა პირადი არაა (საჯარო), მხოლოდ ადმინს შეუძლია წაშლა
+    if not problem.is_private:
+        if user.role != "admin":
+            return jsonify({"error": "Not authorized to delete public problem"}), 403
+    else:
+        # პირად ამოცანაზე ავტორს ან ადმინს აქვს უფლება წაშალოს
+        if problem.owner_id != user.id and user.role != "admin":
+            return jsonify({"error": "Not authorized to delete personal problem"}), 403
+
+    try:
+        db.session.delete(problem)
+        db.session.commit()
+        return jsonify({"message": "Problem deleted successfully"})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Deletion failed: {e}")  # ლოგი სერვერზე
+        return jsonify({"error": f"Deletion failed: {str(e)}"}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

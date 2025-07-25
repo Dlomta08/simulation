@@ -34,33 +34,26 @@ function loadProblems() {
   container.innerHTML = "";
   problems = [];
 
-  Promise.all([
-    fetch("/api/problems").then(res => res.json()),
-    fetch("/api/personal_problems").then(res => res.json())
-  ])
-  .then(([publicData, personalData]) => {
-    const allProblems = [
-      ...publicData.map(p => ({ ...p, source: "public" })),
-      ...personalData.map(p => ({ ...p, source: "personal" }))
-    ];
-
-    allProblems.forEach(p => {
-      const tagsArray = p.tags ? p.tags.split(",").map(t => t.trim()) : [];
-      const card = createProblemCard(p.id, p.difficulty, tagsArray, p.image_url, p.source);
-      container.appendChild(card);
-      problems.push({
-        id: p.id,
-        difficulty: p.difficulty,
-        tags: tagsArray,
-        imageUrl: p.image_url,
-        source: p.source,
-        element: card
+  fetch("/api/problems")
+    .then(res => res.json())
+    .then(data => {
+      data.forEach(p => {
+        const tagsArray = p.tags ? p.tags.split(",").map(t => t.trim()) : [];
+        const card = createProblemCard(p.id, p.difficulty, tagsArray, p.image_url, p.source);
+        container.appendChild(card);
+        problems.push({
+          id: p.id,
+          difficulty: p.difficulty,
+          tags: tagsArray,
+          imageUrl: p.image_url,
+          source: p.source,
+          element: card
+        });
       });
-    });
 
-    applyFilters();
-  })
-  .catch(err => console.error("Error loading problems:", err));
+      applyFilters();
+    })
+    .catch(err => console.error("Error loading problems:", err));
 }
 
 function createProblemCard(id, difficulty, tags, imageUrl, source) {
@@ -80,7 +73,7 @@ function createProblemCard(id, difficulty, tags, imageUrl, source) {
   `;
 
   card.querySelector(".delete-button").addEventListener("click", () => {
-    deleteProblem(id, card);
+    deleteProblem(id, card, source);
   });
 
   return card;
@@ -90,7 +83,7 @@ function addProblem() {
   const imageInput = document.getElementById("problemImage");
   const tags = document.getElementById("tags").value;
   const difficulty = document.getElementById("difficulty").value;
-  const target = document.getElementById("problemTarget").value;
+  const target = document.getElementById("problemTarget").value; // public / personal
 
   if (!imageInput.files[0]) {
     alert("Please upload an image.");
@@ -101,10 +94,9 @@ function addProblem() {
   formData.append("image", imageInput.files[0]);
   formData.append("tags", tags);
   formData.append("difficulty", difficulty);
+  formData.append("is_private", target === "personal"); // ✅ აი აქ ხდება გადაცემა
 
-  const url = target === "public" ? "/upload_problem" : "/upload_personal_problem";
-
-  fetch(url, {
+  fetch("/upload_problem", {
     method: "POST",
     body: formData
   })
@@ -114,7 +106,7 @@ function addProblem() {
     })
     .then(() => {
       alert("ამოცანა დამატებულია!");
-      loadProblems(); // will load both public and personal
+      loadProblems();
       imageInput.value = "";
       document.getElementById("tags").value = "";
       document.getElementById("difficulty").value = "3";
@@ -126,13 +118,12 @@ function addProblem() {
 function deleteProblem(problemId, card, source) {
   if (!confirm("ნამდვილად გსურთ ამ ამოცანის წაშლა?")) return;
 
-  const url = source === "personal"
-    ? `/api/delete_personal_problem/${problemId}`
-    : `/api/delete_problem/${problemId}`;
-
-  fetch(url, { method: "POST" })
-    .then(res => {
-      if (!res.ok) throw new Error("წაშლა ვერ განხორციელდა.");
+  fetch(`/api/delete_problem/${problemId}`, { method: "DELETE" })
+    .then(async res => {
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`წაშლა ვერ განხორციელდა: ${errorText}`);
+      }
       card.remove();
       problems = problems.filter(p => p.id !== problemId);
       renderQuizPreview();
@@ -140,6 +131,7 @@ function deleteProblem(problemId, card, source) {
     })
     .catch(err => alert(err.message));
 }
+
 
 
 function toggleSpoiler(button) {
