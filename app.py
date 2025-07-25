@@ -275,7 +275,7 @@ def approve_teacher():
     return redirect(url_for("pending_teachers"))
 
 
-@app.route("/users_list")
+@app.route("/users_list", endpoint="list_users")
 def users_list():
     users = User.query.all()
     return render_template("users_list.html", users=users)
