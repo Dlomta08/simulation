@@ -105,6 +105,13 @@ function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent =
     deleteProblem(id, card, source);
   });
 
+  // ✅ MathJax რენდერი ლატეხისთვის
+  if (latexContent && window.MathJax && window.MathJax.typesetPromise) {
+    MathJax.typesetPromise([card])
+      .then(() => console.log("MathJax rendered in card"))
+      .catch(err => console.error("MathJax error:", err));
+  }
+
   return card;
 }
 
