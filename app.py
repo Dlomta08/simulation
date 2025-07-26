@@ -14,8 +14,6 @@ import os
 import cloudinary # type: ignore
 import cloudinary.uploader # type: ignore
 
-from dotenv import load_dotenv
-load_dotenv()  # Load .env environment variables at start of app
 
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
