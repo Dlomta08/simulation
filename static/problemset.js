@@ -269,6 +269,13 @@ function toggleSpoiler(button) {
   const shown = content.style.display === "block";
   content.style.display = shown ? "none" : "block";
   button.textContent = shown ? "გახსენით ამოცანა" : "დახურეთ ამოცანა";
+
+  // ⬇️ LaTeX MathJax რენდერი, როცა spoiler იხსნება
+  if (!shown && window.MathJax && window.MathJax.typesetPromise) {
+    MathJax.typesetPromise([content])
+      .then(() => console.log("MathJax rendered in spoiler"))
+      .catch(err => console.error("MathJax error:", err));
+  }
 }
 
 function applyFilters() {
