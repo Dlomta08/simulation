@@ -58,6 +58,8 @@ function loadProblems() {
           tags: tagsArray,
           imageUrl: p.image_url,
           source: p.source,
+          word_content: p.word_content,
+          latex_content: p.latex_content,
           element: card
         });
       });
