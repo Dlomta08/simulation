@@ -425,10 +425,10 @@ def upload_problem():
     is_private = request.form.get("is_private", "true") == "true"
 
     try:
-        if "image" in request.files:
+        if "image" in request.files and request.files["image"].filename != "":
             # ⬅️ ფოტო ამოცანა
             file = request.files["image"]
-            if file.filename == "" or not allowed_file(file.filename):
+            if not allowed_file(file.filename):
                 return "Invalid file.", 400
 
             upload_result = cloudinary.uploader.upload(file)
@@ -441,29 +441,31 @@ def upload_problem():
                 difficulty=difficulty,
                 is_private=is_private
             )
-        
+
         elif "text" in request.form:
             # ⬅️ ვორდის სტილის ამოცანა
-            text = request.form["text"]
+            text = request.form["word_content"]
             problem = Problem(
                 owner_id=user.id,
-                text_content=text,
+                word_content=text,
+                image_filename="",  # placeholder
                 tags=tags,
                 difficulty=difficulty,
                 is_private=is_private
             )
-        
+
         elif "latex" in request.form:
             # ⬅️ ლატექს ამოცანა
-            latex = request.form["latex"]
+            latex = request.form["latex_content"]
             problem = Problem(
                 owner_id=user.id,
-                latex_code=latex,
+                latex_content=latex,
+                image_filename="",  # placeholder
                 tags=tags,
                 difficulty=difficulty,
                 is_private=is_private
             )
-        
+
         else:
             return "No valid input", 400
 
@@ -475,6 +477,7 @@ def upload_problem():
         import traceback
         traceback.print_exc()
         return f"Error: {e}", 500
+
 
 
 
