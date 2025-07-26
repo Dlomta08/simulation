@@ -555,6 +555,8 @@ def get_problems():
         {
             "id": p.id,
             "image_url": p.image_filename,
+            "word_content": p.word_content,
+            "latex_content": p.latex_content,
             "tags": p.tags or "",
             "difficulty": p.difficulty,
             "source": "personal" if p.owner_id == user.id and p.is_private else "public"

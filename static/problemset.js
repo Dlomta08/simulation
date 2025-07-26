@@ -39,8 +39,19 @@ function loadProblems() {
     .then(data => {
       data.forEach(p => {
         const tagsArray = p.tags ? p.tags.split(",").map(t => t.trim()) : [];
-        const card = createProblemCard(p.id, p.difficulty, tagsArray, p.image_url, p.source);
+
+        const card = createProblemCard(
+          p.id,
+          p.difficulty,
+          tagsArray,
+          p.image_url,
+          p.source,
+          p.word_content,
+          p.latex_content
+        );
+
         container.appendChild(card);
+
         problems.push({
           id: p.id,
           difficulty: p.difficulty,
@@ -52,19 +63,35 @@ function loadProblems() {
       });
 
       applyFilters();
+      // MathJax გაშვება LaTeX-ისთვის
+      if (window.MathJax) {
+        MathJax.typeset();
+      }
     })
     .catch(err => console.error("Error loading problems:", err));
 }
 
-function createProblemCard(id, difficulty, tags, imageUrl, source) {
+function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent = null, latexContent = null) {
   const card = document.createElement("div");
   card.className = "problem-card";
+
+  let contentHTML = "";
+
+  if (imageUrl) {
+    contentHTML = `<img src="${imageUrl}" alt="Problem Image" class="problem-img">`;
+  } else if (wordContent) {
+    contentHTML = `<div class="word-content">${wordContent}</div>`;
+  } else if (latexContent) {
+    contentHTML = `<div class="latex-content">\\(${latexContent}\\)</div>`;
+  } else {
+    contentHTML = `<p style="color:red;">ამოცანის შინაარსი ვერ ჩაიტვირთა.</p>`;
+  }
 
   card.innerHTML = `
     <input type="checkbox" class="quiz-select">
     <button onclick="toggleSpoiler(this)">გახსენით ამოცანა</button>
     <div class="spoiler-content" style="display:none;">
-      <img src="${imageUrl}" alt="Problem Image" class="problem-img">
+      ${contentHTML}
     </div>
     <p><strong>სირთულე:</strong> ${difficulty}</p>
     <p><strong>თემები:</strong> ${tags.map(t => `<span class="tag">${t}</span>`).join(", ")}</p>
@@ -78,6 +105,7 @@ function createProblemCard(id, difficulty, tags, imageUrl, source) {
 
   return card;
 }
+
 
 function addProblem() {
   const imageInput = document.getElementById("problemImage");
