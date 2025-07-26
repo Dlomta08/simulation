@@ -14,16 +14,20 @@ import os
 import cloudinary # type: ignore
 import cloudinary.uploader # type: ignore
 
-# Config from Railway environment variables
+from dotenv import load_dotenv
+load_dotenv()  # Load .env environment variables at start of app
+
 cloudinary.config(
     cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
     api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
 )
-print("Cloudinary Config:")
-print("cloud_name:", repr(os.getenv("CLOUDINARY_CLOUD_NAME")))
-print("api_key:", repr(os.getenv("CLOUDINARY_API_KEY")))
-print("api_secret:", repr(os.getenv("CLOUDINARY_API_SECRET")))
+
+print("Cloudinary config:", cloudinary.config())
+print("cloud_name:", cloudinary.config().cloud_name)
+print("api_key:", cloudinary.config().api_key)
+print("api_secret:", cloudinary.config().api_secret)
 
 
 app = Flask(__name__)
@@ -55,7 +59,9 @@ class Problem(db.Model):
     difficulty = db.Column(db.Integer)
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     is_private = db.Column(db.Boolean, default=False)
-
+    word_content = db.Column(db.Text)         # ახალი
+    latex_content = db.Column(db.Text)        # ახალი
+    
 # Create DB tables
 with app.app_context():
     db.create_all()
@@ -416,26 +422,82 @@ def upload_problem():
     if not user:
         return "User not found", 404
 
-    if "image" not in request.files:
-        return "No image file.", 400
-
-    file = request.files["image"]
-    if file.filename == "" or not allowed_file(file.filename):
-        return "Invalid file.", 400
-
-    try:
-        upload_result = cloudinary.uploader.upload(file)
-        image_url = upload_result["secure_url"]
-    except Exception as e:
-        return f"Cloudinary upload failed: {str(e)}", 500
-
     difficulty = int(request.form.get("difficulty", 3))
     tags = request.form.get("tags", "")
     is_private = request.form.get("is_private", "true") == "true"
 
+    try:
+        if "image" in request.files:
+            # ⬅️ ფოტო ამოცანა
+            file = request.files["image"]
+            if file.filename == "" or not allowed_file(file.filename):
+                return "Invalid file.", 400
+
+            upload_result = cloudinary.uploader.upload(file)
+            image_url = upload_result["secure_url"]
+
+            problem = Problem(
+                owner_id=user.id,
+                image_filename=image_url,
+                tags=tags,
+                difficulty=difficulty,
+                is_private=is_private
+            )
+        
+        elif "text" in request.form:
+            # ⬅️ ვორდის სტილის ამოცანა
+            text = request.form["text"]
+            problem = Problem(
+                owner_id=user.id,
+                text_content=text,
+                tags=tags,
+                difficulty=difficulty,
+                is_private=is_private
+            )
+        
+        elif "latex" in request.form:
+            # ⬅️ ლატექს ამოცანა
+            latex = request.form["latex"]
+            problem = Problem(
+                owner_id=user.id,
+                latex_code=latex,
+                tags=tags,
+                difficulty=difficulty,
+                is_private=is_private
+            )
+        
+        else:
+            return "No valid input", 400
+
+        db.session.add(problem)
+        db.session.commit()
+        return "Problem uploaded."
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return f"Error: {e}", 500
+
+
+
+@app.route("/upload_problem_word", methods=["POST"])
+def upload_problem_word():
+    if "username" not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    data = request.get_json()
+    html = data.get("html")
+    tags = data.get("tags", "")
+    difficulty = int(data.get("difficulty", 3))
+    is_private = data.get("visibility", "personal") == "personal"
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
     problem = Problem(
         owner_id=user.id,
-        image_filename=image_url,
+        word_html=html,
         tags=tags,
         difficulty=difficulty,
         is_private=is_private
@@ -443,7 +505,35 @@ def upload_problem():
     db.session.add(problem)
     db.session.commit()
 
-    return "Problem uploaded."
+    return jsonify({"message": "Word-style problem added."})
+
+
+@app.route("/upload_problem_latex", methods=["POST"])
+def upload_problem_latex():
+    if "username" not in session:
+        return jsonify({"error": "Unauthorized"}), 403
+
+    data = request.get_json()
+    latex = data.get("latex")
+    tags = data.get("tags", "")
+    difficulty = int(data.get("difficulty", 3))
+    is_private = data.get("visibility", "personal") == "personal"
+
+    user = User.query.filter_by(username=session["username"]).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    problem = Problem(
+        owner_id=user.id,
+        latex=latex,
+        tags=tags,
+        difficulty=difficulty,
+        is_private=is_private
+    )
+    db.session.add(problem)
+    db.session.commit()
+
+    return jsonify({"message": "LaTeX problem added."})
 
 @app.route("/api/problems")
 def get_problems():

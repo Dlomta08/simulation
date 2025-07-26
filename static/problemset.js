@@ -114,6 +114,108 @@ function addProblem() {
     .catch(err => alert(err.message));
 }
 
+function submitProblem() {
+  const type = document.getElementById("problemType").value;
+
+  if (type === "image") {
+    addProblemImage();
+  } else if (type === "word") {
+    addProblemWord();
+  } else if (type === "latex") {
+    addProblemLatex();
+  }
+}
+
+
+function addProblemImage() {
+  const imageInput = document.getElementById("problemImage");
+  const tags = document.getElementById("tags").value;
+  const difficulty = document.getElementById("difficulty").value;
+  const target = document.getElementById("problemTarget").value;
+
+  if (!imageInput.files[0]) {
+    alert("გთხოვ ატვირთე სურათი.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("image", imageInput.files[0]);
+  formData.append("tags", tags);
+  formData.append("difficulty", difficulty);
+  formData.append("is_private", target === "personal");
+
+  fetch("/upload_problem", {
+    method: "POST",
+    body: formData
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("ამოცანის დამატება ვერ განხორციელდა.");
+      return res.text();
+    })
+    .then(() => {
+      alert("ამოცანა დამატებულია!");
+      loadProblems();
+      imageInput.value = "";
+      document.getElementById("tags").value = "";
+      document.getElementById("difficulty").value = "3";
+    })
+    .catch(err => alert(err.message));
+}
+
+function addProblemWord() {
+  const text = tinymce.get("problemText").getContent();
+  const tags = document.getElementById("tags").value;
+  const difficulty = document.getElementById("difficulty").value;
+  const target = document.getElementById("problemTarget").value;
+
+  const formData = new FormData();
+  formData.append("text", text);
+  formData.append("tags", tags);
+  formData.append("difficulty", difficulty);
+  formData.append("is_private", target === "personal");
+
+  fetch("/upload_problem", {
+    method: "POST",
+    body: formData
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("ამოცანის დამატება ვერ განხორციელდა.");
+      return res.text();
+    })
+    .then(() => {
+      alert("Word-ის ამოცანა დაემატა!");
+      tinymce.get("problemText").setContent("");
+    })
+    .catch(err => alert(err.message));
+}
+
+function addProblemLatex() {
+  const latex = document.getElementById("latexInput").value;
+  const tags = document.getElementById("tags").value;
+  const difficulty = document.getElementById("difficulty").value;
+  const target = document.getElementById("problemTarget").value;
+
+  const formData = new FormData();
+  formData.append("latex", latex);
+  formData.append("tags", tags);
+  formData.append("difficulty", difficulty);
+  formData.append("is_private", target === "personal");
+
+  fetch("/upload_problem", {
+    method: "POST",
+    body: formData
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("ამოცანის დამატება ვერ განხორციელდა.");
+      return res.text();
+    })
+    .then(() => {
+      alert("LaTeX ამოცანა დაემატა!");
+      document.getElementById("latexInput").value = "";
+    })
+    .catch(err => alert(err.message));
+}
+
 
 function deleteProblem(problemId, card, source) {
   if (!confirm("ნამდვილად გსურთ ამ ამოცანის წაშლა?")) return;
