@@ -169,7 +169,7 @@ function addProblemWord() {
   const target = document.getElementById("problemTarget").value;
 
   const formData = new FormData();
-  formData.append("text", text);
+  formData.append("word_content", text);
   formData.append("tags", tags);
   formData.append("difficulty", difficulty);
   formData.append("is_private", target === "personal");
@@ -196,7 +196,7 @@ function addProblemLatex() {
   const target = document.getElementById("problemTarget").value;
 
   const formData = new FormData();
-  formData.append("latex", latex);
+  formData.append("latex_content", latex);
   formData.append("tags", tags);
   formData.append("difficulty", difficulty);
   formData.append("is_private", target === "personal");
