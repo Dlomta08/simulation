@@ -306,17 +306,20 @@ function renderQuizPreview() {
   const preview = document.getElementById('quizPreview');
   const selected = problems.filter(p => p.element.querySelector('.quiz-select')?.checked);
 
+  // დაამატე ახალი ამოცანები preview-ში
   selected.forEach(p => {
     if (!quizPreviewProblems.includes(p)) {
       quizPreviewProblems.push(p);
     }
   });
 
+  // წაშალე გამორთულები
   quizPreviewProblems = quizPreviewProblems.filter(p =>
     p.element.querySelector('.quiz-select')?.checked
   );
 
   preview.innerHTML = '';
+
   quizPreviewProblems.forEach((p, i) => {
     const div = document.createElement('div');
     div.className = 'quiz-preview-item';
@@ -325,7 +328,7 @@ function renderQuizPreview() {
     div.style.marginBottom = '5px';
     div.style.cursor = 'move';
 
-    div.dataset.image = p.imageUrl;
+    div.dataset.image = p.imageUrl || "";
     div.dataset.difficulty = p.difficulty;
     div.dataset.tags = JSON.stringify(p.tags);
 
@@ -333,34 +336,37 @@ function renderQuizPreview() {
     label.className = 'label';
     label.innerHTML = `<strong>ამოცანა N${i + 1}:</strong> სირთულე: ${p.difficulty} – თემები: ${p.tags.join(', ')}`;
 
-    const img = document.createElement('img');
-    img.src = p.imageUrl;
-    img.style.display = 'none';
-    img.style.maxWidth = '100%';
-    img.style.marginTop = '10px';
+    const contentEl = document.createElement('div');
+    contentEl.style.marginTop = '10px';
+
+    if (p.imageUrl) {
+      const img = document.createElement('img');
+      img.src = p.imageUrl;
+      img.style.maxWidth = '100%';
+      contentEl.appendChild(img);
+    } else if (p.word_content) {
+      contentEl.innerHTML = p.word_content;
+    } else if (p.latex_content) {
+      contentEl.innerHTML = `\\(${p.latex_content}\\)`;
+    } else {
+      contentEl.innerHTML = '<p style="color:red;">ამოცანის შინაარსი ვერ ჩაიტვირთა.</p>';
+    }
 
     div.addEventListener('click', () => {
-      img.style.display = img.style.display === 'none' ? 'block' : 'none';
+      contentEl.style.display = contentEl.style.display === 'none' ? 'block' : 'none';
     });
 
     div.appendChild(label);
-    div.appendChild(img);
+    div.appendChild(contentEl);
     preview.appendChild(div);
   });
-}
 
-function refreshQuizPreview() {
-  const preview = document.getElementById('quizPreview');
-  const items = Array.from(preview.children);
-
-  items.forEach((item, i) => {
-    const difficulty = item.dataset.difficulty;
-    const tags = JSON.parse(item.dataset.tags || "[]");
-    const label = item.querySelector(".label");
-    if (label) {
-      label.innerHTML = `<strong>ამოცანა N${i + 1}:</strong> სირთულე: ${difficulty} – თემები: ${tags.join(', ')}`;
-    }
-  });
+  // 📐 LaTeX MathJax რენდერი
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    MathJax.typesetPromise([preview])
+      .then(() => console.log("MathJax rendered"))
+      .catch(err => console.error("MathJax error:", err));
+  }
 }
 
 function shuffleQuiz() {
