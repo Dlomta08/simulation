@@ -5,7 +5,13 @@
   <title>Problemset</title>
   <link rel="stylesheet" href="problemset.css">
   <script src="https://cdn.tiny.cloud/1/wc094o6eduj1y8n5p2u12pfaroxlmsn6hhuzwp8wx90tsv81/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-
+  <script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
+    svg: { fontCache: 'global' }
+  };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script>
     if (localStorage.getItem('theme') === 'dark') {
       document.documentElement.classList.add('dark-mode');

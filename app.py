@@ -426,7 +426,7 @@ def upload_problem():
 
     try:
         if "image" in request.files and request.files["image"].filename != "":
-            # ⬅️ ფოტო ამოცანა
+            # 📷 ფოტო ამოცანა
             file = request.files["image"]
             if not allowed_file(file.filename):
                 return "Invalid file.", 400
@@ -442,25 +442,25 @@ def upload_problem():
                 is_private=is_private
             )
 
-        elif "text" in request.form:
-            # ⬅️ ვორდის სტილის ამოცანა
+        elif "word_content" in request.form:
+            # 📝 Word-ის სტილის ამოცანა
             text = request.form["word_content"]
             problem = Problem(
                 owner_id=user.id,
+                image_filename="",  # სავალდებულო ველია
                 word_content=text,
-                image_filename="",  # placeholder
                 tags=tags,
                 difficulty=difficulty,
                 is_private=is_private
             )
 
-        elif "latex" in request.form:
-            # ⬅️ ლატექს ამოცანა
+        elif "latex_content" in request.form:
+            # 🔢 LaTeX ამოცანა
             latex = request.form["latex_content"]
             problem = Problem(
                 owner_id=user.id,
+                image_filename="",  # სავალდებულო ველია
                 latex_content=latex,
-                image_filename="",  # placeholder
                 tags=tags,
                 difficulty=difficulty,
                 is_private=is_private
@@ -477,6 +477,7 @@ def upload_problem():
         import traceback
         traceback.print_exc()
         return f"Error: {e}", 500
+
 
 
 
@@ -554,6 +555,8 @@ def get_problems():
         {
             "id": p.id,
             "image_url": p.image_filename,
+            "word_content": p.word_content,
+            "latex_content": p.latex_content,
             "tags": p.tags or "",
             "difficulty": p.difficulty,
             "source": "personal" if p.owner_id == user.id and p.is_private else "public"

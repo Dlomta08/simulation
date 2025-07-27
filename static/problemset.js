@@ -39,32 +39,61 @@ function loadProblems() {
     .then(data => {
       data.forEach(p => {
         const tagsArray = p.tags ? p.tags.split(",").map(t => t.trim()) : [];
-        const card = createProblemCard(p.id, p.difficulty, tagsArray, p.image_url, p.source);
+
+        const card = createProblemCard(
+          p.id,
+          p.difficulty,
+          tagsArray,
+          p.image_url,
+          p.source,
+          p.word_content,
+          p.latex_content
+        );
+
         container.appendChild(card);
+
         problems.push({
           id: p.id,
           difficulty: p.difficulty,
           tags: tagsArray,
           imageUrl: p.image_url,
           source: p.source,
+          word_content: p.word_content,
+          latex_content: p.latex_content,
           element: card
         });
       });
 
       applyFilters();
+      // MathJax გაშვება LaTeX-ისთვის
+      if (window.MathJax) {
+        MathJax.typeset();
+      }
     })
     .catch(err => console.error("Error loading problems:", err));
 }
 
-function createProblemCard(id, difficulty, tags, imageUrl, source) {
+function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent = null, latexContent = null) {
   const card = document.createElement("div");
   card.className = "problem-card";
+
+  let contentHTML = "";
+
+  if (imageUrl) {
+    contentHTML = `<img src="${imageUrl}" alt="Problem Image" class="problem-img">`;
+  } else if (wordContent) {
+    contentHTML = `<div class="word-content">${wordContent}</div>`;
+  } else if (latexContent) {
+    contentHTML = `<div class="latex-content">\\(${latexContent}\\)</div>`;
+  } else {
+    contentHTML = `<p style="color:red;">ამოცანის შინაარსი ვერ ჩაიტვირთა.</p>`;
+  }
 
   card.innerHTML = `
     <input type="checkbox" class="quiz-select">
     <button onclick="toggleSpoiler(this)">გახსენით ამოცანა</button>
     <div class="spoiler-content" style="display:none;">
-      <img src="${imageUrl}" alt="Problem Image" class="problem-img">
+      ${contentHTML}
     </div>
     <p><strong>სირთულე:</strong> ${difficulty}</p>
     <p><strong>თემები:</strong> ${tags.map(t => `<span class="tag">${t}</span>`).join(", ")}</p>
@@ -76,8 +105,16 @@ function createProblemCard(id, difficulty, tags, imageUrl, source) {
     deleteProblem(id, card, source);
   });
 
+  // ✅ MathJax რენდერი ლატეხისთვის
+  if (latexContent && window.MathJax && window.MathJax.typesetPromise) {
+    MathJax.typesetPromise([card])
+      .then(() => console.log("MathJax rendered in card"))
+      .catch(err => console.error("MathJax error:", err));
+  }
+
   return card;
 }
+
 
 function addProblem() {
   const imageInput = document.getElementById("problemImage");
@@ -169,7 +206,7 @@ function addProblemWord() {
   const target = document.getElementById("problemTarget").value;
 
   const formData = new FormData();
-  formData.append("text", text);
+  formData.append("word_content", text);
   formData.append("tags", tags);
   formData.append("difficulty", difficulty);
   formData.append("is_private", target === "personal");
@@ -196,7 +233,7 @@ function addProblemLatex() {
   const target = document.getElementById("problemTarget").value;
 
   const formData = new FormData();
-  formData.append("latex", latex);
+  formData.append("latex_content", latex);
   formData.append("tags", tags);
   formData.append("difficulty", difficulty);
   formData.append("is_private", target === "personal");
@@ -241,6 +278,13 @@ function toggleSpoiler(button) {
   const shown = content.style.display === "block";
   content.style.display = shown ? "none" : "block";
   button.textContent = shown ? "გახსენით ამოცანა" : "დახურეთ ამოცანა";
+
+  // ⬇️ LaTeX MathJax რენდერი, როცა spoiler იხსნება
+  if (!shown && window.MathJax && window.MathJax.typesetPromise) {
+    MathJax.typesetPromise([content])
+      .then(() => console.log("MathJax rendered in spoiler"))
+      .catch(err => console.error("MathJax error:", err));
+  }
 }
 
 function applyFilters() {
@@ -278,17 +322,20 @@ function renderQuizPreview() {
   const preview = document.getElementById('quizPreview');
   const selected = problems.filter(p => p.element.querySelector('.quiz-select')?.checked);
 
+  // დაამატე ახალი ამოცანები preview-ში
   selected.forEach(p => {
     if (!quizPreviewProblems.includes(p)) {
       quizPreviewProblems.push(p);
     }
   });
 
+  // წაშალე გამორთულები
   quizPreviewProblems = quizPreviewProblems.filter(p =>
     p.element.querySelector('.quiz-select')?.checked
   );
 
   preview.innerHTML = '';
+
   quizPreviewProblems.forEach((p, i) => {
     const div = document.createElement('div');
     div.className = 'quiz-preview-item';
@@ -297,7 +344,7 @@ function renderQuizPreview() {
     div.style.marginBottom = '5px';
     div.style.cursor = 'move';
 
-    div.dataset.image = p.imageUrl;
+    div.dataset.image = p.imageUrl || "";
     div.dataset.difficulty = p.difficulty;
     div.dataset.tags = JSON.stringify(p.tags);
 
@@ -305,34 +352,37 @@ function renderQuizPreview() {
     label.className = 'label';
     label.innerHTML = `<strong>ამოცანა N${i + 1}:</strong> სირთულე: ${p.difficulty} – თემები: ${p.tags.join(', ')}`;
 
-    const img = document.createElement('img');
-    img.src = p.imageUrl;
-    img.style.display = 'none';
-    img.style.maxWidth = '100%';
-    img.style.marginTop = '10px';
+    const contentEl = document.createElement('div');
+    contentEl.style.marginTop = '10px';
+
+    if (p.imageUrl) {
+      const img = document.createElement('img');
+      img.src = p.imageUrl;
+      img.style.maxWidth = '100%';
+      contentEl.appendChild(img);
+    } else if (p.word_content) {
+      contentEl.innerHTML = p.word_content;
+    } else if (p.latex_content) {
+      contentEl.innerHTML = `\\(${p.latex_content}\\)`;
+    } else {
+      contentEl.innerHTML = '<p style="color:red;">ამოცანის შინაარსი ვერ ჩაიტვირთა.</p>';
+    }
 
     div.addEventListener('click', () => {
-      img.style.display = img.style.display === 'none' ? 'block' : 'none';
+      contentEl.style.display = contentEl.style.display === 'none' ? 'block' : 'none';
     });
 
     div.appendChild(label);
-    div.appendChild(img);
+    div.appendChild(contentEl);
     preview.appendChild(div);
   });
-}
 
-function refreshQuizPreview() {
-  const preview = document.getElementById('quizPreview');
-  const items = Array.from(preview.children);
-
-  items.forEach((item, i) => {
-    const difficulty = item.dataset.difficulty;
-    const tags = JSON.parse(item.dataset.tags || "[]");
-    const label = item.querySelector(".label");
-    if (label) {
-      label.innerHTML = `<strong>ამოცანა N${i + 1}:</strong> სირთულე: ${difficulty} – თემები: ${tags.join(', ')}`;
-    }
-  });
+  // 📐 LaTeX MathJax რენდერი
+  if (window.MathJax && window.MathJax.typesetPromise) {
+    MathJax.typesetPromise([preview])
+      .then(() => console.log("MathJax rendered"))
+      .catch(err => console.error("MathJax error:", err));
+  }
 }
 
 function shuffleQuiz() {
