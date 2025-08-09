@@ -62,16 +62,20 @@ function loadProblems() {
           latex_content: p.latex_content,
           element: card
         });
+
+        // ✅ Render LaTeX for this card only if it has latex_content
+        if (p.latex_content && p.latex_content.trim() !== "" && window.MathJax && window.MathJax.typesetPromise) {
+          MathJax.typesetPromise([card])
+            .then(() => console.log(`MathJax rendered for problem ${p.id}`))
+            .catch(err => console.error("MathJax error:", err));
+        }
       });
 
       applyFilters();
-      // MathJax გაშვება LaTeX-ისთვის
-      if (window.MathJax) {
-        MathJax.typeset();
-      }
     })
     .catch(err => console.error("Error loading problems:", err));
 }
+
 
 function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent = null, latexContent = null) {
   const card = document.createElement("div");

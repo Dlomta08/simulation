@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <title>Problemset</title>
   <link rel="stylesheet" href="problemset.css">
-  <script src="https://cdn.tiny.cloud/1/addpxz6im9wscqsyhb2o5gs3m2txxbymtkxvsiu93uwt786a/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+  <script src="{{ url_for('static', filename='tinymce/tinymce.min.js') }}"></script>
+
   <script>
   window.MathJax = {
     tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] },
