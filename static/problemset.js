@@ -81,11 +81,15 @@ function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent =
 
   if (imageUrl) {
     contentHTML = `<img src="${imageUrl}" alt="Problem Image" class="problem-img">`;
-  } else if (wordContent) {
+  } 
+  else if (latexContent && latexContent.trim() !== "") {
+    // Block-style LaTeX delimiters for better rendering
+    contentHTML = `<div class="latex-content">\\[${latexContent}\\]</div>`;
+  }
+  else if (wordContent && wordContent.trim() !== "") {
     contentHTML = `<div class="word-content">${wordContent}</div>`;
-  } else if (latexContent) {
-    contentHTML = `<div class="latex-content">\\(${latexContent}\\)</div>`;
-  } else {
+  } 
+  else {
     contentHTML = `<p style="color:red;">ამოცანის შინაარსი ვერ ჩაიტვირთა.</p>`;
   }
 
@@ -105,15 +109,16 @@ function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent =
     deleteProblem(id, card, source);
   });
 
-  // ✅ MathJax რენდერი ლატეხისთვის
-  if (latexContent && window.MathJax && window.MathJax.typesetPromise) {
+  // ✅ MathJax rendering if LaTeX content exists
+  if (latexContent && latexContent.trim() !== "" && window.MathJax && window.MathJax.typesetPromise) {
     MathJax.typesetPromise([card])
-      .then(() => console.log("MathJax rendered in card"))
+      .then(() => console.log(`MathJax rendered for problem ${id}`))
       .catch(err => console.error("MathJax error:", err));
   }
 
   return card;
 }
+
 
 
 function addProblem() {
