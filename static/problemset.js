@@ -419,7 +419,7 @@ function openQuizWindow(selectedProblems) {
         .problem { margin-bottom: 30px; border-bottom: 1px solid #ccc; padding-bottom: 15px; }
         .problem img { max-width: 100%; margin-top: 10px; }
       </style>
-      <script src="https://cdn.tiny.cloud/1/addpxz6im9wscqsyhb2o5gs3m2txxbymtkxvsiu93uwt786a/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     </head>
     <body>
       <button onclick="downloadQuizPDF()">PDF-ის გადმოწერა</button>
