@@ -18,9 +18,6 @@
   </script>
 </head>
 <body>
-  <!-- Place the following <script> and <textarea> tags your HTML's <body> -->
-
-
   <div class="symbol-background"></div>
   <button id="toggle-dark">🌙</button>
   <div id="account-info"></div>
@@ -31,7 +28,6 @@
   <button onclick="shuffleQuiz()">თანმიმდევრობის არევა</button>
 
   <h1>ამოცანები</h1>
-
   <button onclick="toggleTypeButtons()">ამოცანის დამატება</button>
 
   <div id="typeButtons" style="display:none; margin: 10px 0;">
@@ -70,39 +66,44 @@
 
   <!-- ფორმა Word-სტილის -->
   <div id="formWord" style="display:none;">
-  <label for="problemText" ><strong>შეიყვანეთ ამოცანა:</strong></label><br>
-  <textarea id="problemText" name="word_content"></textarea><br><br>
-  <button onclick="addProblemWord()">დამატება</button>
-</div>
+    <label for="problemText" ><strong>შეიყვანეთ ამოცანა:</strong></label><br>
+    <textarea id="problemText" name="word_content"></textarea><br><br>
+    <button onclick="addProblemWord()">დამატება</button>
+  </div>
 
-<!-- TinyMCE CDN -->
-<script>
-  tinymce.init({
-    selector: '#problemText',
-    height: 300,
-    menubar: false,
-    plugins: 'charmap lists link image table',
-    toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | charmap',
-    charmap_append: [
-      ['√', 'Square Root'],
-      ['∞', 'Infinity'],
-      ['≤', 'Less-than or equal'],
-      ['≥', 'Greater-than or equal'],
-      ['≠', 'Not equal'],
-      ['≈', 'Approximately equal'],
-      ['π', 'Pi'],
-      ['∑', 'Summation'],
-      ['∆', 'Delta'],
-      ['∫', 'Integral']
-    ],
-    content_style: "body { font-size:16px }"
-  });
-</script>
+  <!-- TinyMCE init -->
+  <script>
+    tinymce.init({
+      selector: '#problemText',
+      height: 300,
+      menubar: false,
+      plugins: 'charmap lists link image table',
+      toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | charmap',
+      charmap_append: [
+        ['√', 'Square Root'],
+        ['∞', 'Infinity'],
+        ['≤', 'Less-than or equal'],
+        ['≥', 'Greater-than or equal'],
+        ['≠', 'Not equal'],
+        ['≈', 'Approximately equal'],
+        ['π', 'Pi'],
+        ['∑', 'Summation'],
+        ['∆', 'Delta'],
+        ['∫', 'Integral']
+      ],
+      content_style: "body { font-size:16px }"
+    });
+  </script>
 
   <!-- ფორმა LaTeX -->
   <div id="formLatex" style="display:none;">
-    <label for="problemLatex"><strong>LaTeX ამოცანა:</strong></label><br>
-    <textarea id="latexInput" name="latex_content" rows="6" cols="60" placeholder="მაგ. \\(a^2 + b^2 = c^2\\)"></textarea><br><br>
+    <label for="latexInput"><strong>LaTeX ამოცანა:</strong></label><br>
+    <textarea id="latexInput" name="latex_content" rows="6" cols="60" placeholder="მაგ. $$a^2 + b^2 = c^2$$"></textarea><br><br>
+
+    <!-- Live Preview -->
+    <div id="latexPreview" style="min-height:50px; padding:8px; border:1px solid #ccc; background:#fafafa;"></div>
+    
+    <br>
     <button onclick="addProblemLatex()">დამატება</button>
   </div>
 
@@ -128,43 +129,6 @@
   </div>
 
   <div id="problemList"></div>
-
-  <script>
-    function toggleTypeButtons() {
-      const box = document.getElementById('typeButtons');
-      box.style.display = box.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function showForm(type) {
-      document.getElementById('formImage').style.display = 'none';
-      document.getElementById('formWord').style.display = 'none';
-      document.getElementById('formLatex').style.display = 'none';
-      document.getElementById('commonFields').style.display = 'block';
-
-      if (type === 'image') {
-        document.getElementById('formImage').style.display = 'block';
-      } else if (type === 'word') {
-        document.getElementById('formWord').style.display = 'block';
-      } else if (type === 'latex') {
-        document.getElementById('formLatex').style.display = 'block';
-      }
-    }
-
-    function addProblemImage() {
-      // აქ დაამატე სერვერზე ფოტოს გაგზავნის ლოგიკა
-      alert("ფოტოს ამოცანა დაემატება");
-    }
-
-    function addProblemWord() {
-      // აქ დაამატე ტექსტური ამოცანის გაგზავნის ლოგიკა
-      alert("Word-ის ტიპის ამოცანა დაემატება");
-    }
-
-    function addProblemLatex() {
-      // აქ დაამატე ლატექსის გაგზავნის ლოგიკა
-      alert("LaTeX ამოცანა დაემატება");
-    }
-  </script>
 
   <script src="problemset.js"></script>
   <script src="darkmode.js"></script>

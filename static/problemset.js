@@ -1,3 +1,42 @@
+(function() {
+    const katexCSS = document.createElement('link');
+    katexCSS.rel = 'stylesheet';
+    katexCSS.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css';
+    document.head.appendChild(katexCSS);
+
+    const katexJS = document.createElement('script');
+    katexJS.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js';
+    katexJS.defer = true;
+    document.head.appendChild(katexJS);
+
+    const renderJS = document.createElement('script');
+    renderJS.src = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js';
+    renderJS.defer = true;
+    renderJS.onload = initLatexPreview;
+    document.head.appendChild(renderJS);
+})();
+
+function initLatexPreview() {
+    const latexInput = document.getElementById('latexInput');
+    const latexPreview = document.getElementById('latexPreview');
+
+    if (!latexInput || !latexPreview) return;
+
+    latexInput.addEventListener('input', () => {
+        latexPreview.innerHTML = latexInput.value;
+        renderMathInElement(latexPreview, {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "\\[", right: "\\]", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false }
+            ],
+            throwOnError: false
+        });
+    });
+}
+
+
 function toggleForm() {
   const form = document.getElementById("problemForm");
   form.style.display = (form.style.display === "none" || form.style.display === "") ? "block" : "none";
