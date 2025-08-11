@@ -35,7 +35,37 @@ function initLatexPreview() {
         });
     });
 }
+function toggleTypeButtons() {
+  const typeButtons = document.getElementById("typeButtons");
+  const commonFields = document.getElementById("commonFields");
 
+  if (typeButtons.style.display === "none" || typeButtons.style.display === "") {
+    typeButtons.style.display = "block";
+    commonFields.style.display = "block";
+  } else {
+    typeButtons.style.display = "none";
+    commonFields.style.display = "none";
+    // სურვილისამებრ — დამალე ყველა ფორმა
+    document.getElementById("formImage").style.display = "none";
+    document.getElementById("formWord").style.display = "none";
+    document.getElementById("formLatex").style.display = "none";
+  }
+}
+
+function showForm(type) {
+  // დამალე ყველა ფორმა
+  document.getElementById("formImage").style.display = "none";
+  document.getElementById("formWord").style.display = "none";
+  document.getElementById("formLatex").style.display = "none";
+
+  if (type === "image") {
+    document.getElementById("formImage").style.display = "block";
+  } else if (type === "word") {
+    document.getElementById("formWord").style.display = "block";
+  } else if (type === "latex") {
+    document.getElementById("formLatex").style.display = "block";
+  }
+}
 
 function toggleForm() {
   const form = document.getElementById("problemForm");
