@@ -290,11 +290,10 @@ function addProblemLatex() {
     method: "POST",
     body: formData
   })
-    .then(res => {
-      if (!res.ok) throw new Error("ამოცანის დამატება ვერ განხორციელდა.");
-      return res.text();
-    })
-    .then(() => {
+    .then(async res => {
+      const text = await res.text();
+      console.log("Server response:", res.status, text); // 🔍 debug
+      if (!res.ok) throw new Error(text || "ამოცანის დამატება ვერ განხორციელდა.");
       alert("LaTeX ამოცანა დაემატა!");
       document.getElementById("latexInput").value = "";
     })
