@@ -98,6 +98,26 @@
   <!-- ფორმა LaTeX -->
   <div id="formLatex" style="display:none;">
     <label for="latexInput"><strong>LaTeX ამოცანა:</strong></label><br>
+      <div id="latexShortcuts" style="margin-bottom:8px;">
+        <!-- ფუნქციები -->
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\text{}')">ტექსტი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\frac{}{}')">წილადი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\sqrt{}')">კვადრატული ფესვი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\int_{}^{} {} \\,dx')">ინტეგრალი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\sum_{}^{} {}')">ჯამი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\prod_{}^{} {}')">ნამრავლი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\lim_{x \\to {}} {}')">ლიმიტი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\log_{}{}')">ლოგარითმი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\sin{}')">სინუსი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\cos{}')">კოსინუსი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\tan{}')">ტანგენსი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\vec{}')">ვექტორი</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\leq')">&leq;</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\geq')">&geq;</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\neq')">&ne;</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\approx')">&asymp;</button>
+        <button type="button" onclick="insertLatexSnippet('latexInput', '\\infty')">&infin;</button>
+      </div>
     <textarea id="latexInput" name="latex_content" rows="6" cols="60" placeholder="მაგ. $$a^2 + b^2 = c^2$$"></textarea><br><br>
 
     <!-- Live Preview -->

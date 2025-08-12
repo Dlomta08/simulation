@@ -15,7 +15,26 @@
     renderJS.onload = initLatexPreview;
     document.head.appendChild(renderJS);
 })();
-
+function insertLatexSnippet(inputId, snippet) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const start = input.selectionStart || 0;
+    const end = input.selectionEnd || 0;
+    // Insert snippet at cursor position
+    input.value = input.value.slice(0, start) + snippet + input.value.slice(end);
+    // Place cursor inside the first set of braces if present
+    const firstBrace = snippet.indexOf('{}');
+    if (firstBrace !== -1) {
+        const pos = start + firstBrace + 1;
+        input.setSelectionRange(pos, pos);
+    } else {
+        // Place cursor after inserted snippet
+        input.setSelectionRange(start + snippet.length, start + snippet.length);
+    }
+    input.focus();
+    // Trigger input event for live preview
+    input.dispatchEvent(new Event('input'));
+}
 function initLatexPreview() {
     const latexInput = document.getElementById('latexInput');
     const latexPreview = document.getElementById('latexPreview');
@@ -23,7 +42,8 @@ function initLatexPreview() {
     if (!latexInput || !latexPreview) return;
 
     latexInput.addEventListener('input', () => {
-        latexPreview.innerHTML = latexInput.value;
+        // Wrap user input in the desired constant LaTeX structure
+        latexPreview.innerHTML = `$$\\displaystyle{${latexInput.value}}$$`;
         renderMathInElement(latexPreview, {
             delimiters: [
                 { left: "$$", right: "$$", display: true },
