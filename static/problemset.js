@@ -39,11 +39,12 @@ function initLatexPreview() {
     const latexInput = document.getElementById('latexInput');
     const latexPreview = document.getElementById('latexPreview');
 
-    if (!latexInput || !latexPreview) return;
-
     latexInput.addEventListener('input', () => {
-        // Wrap user input in the desired constant LaTeX structure
-        latexPreview.innerHTML = `$$\\displaystyle{${latexInput.value}}$$`;
+        // Always wrap user input in $$ ... $$ for display math
+        const wrappedLatex = `$$${latexInput.value}$$`;
+        latexPreview.textContent = wrappedLatex; // set raw text
+
+        // Render LaTeX visually
         renderMathInElement(latexPreview, {
             delimiters: [
                 { left: "$$", right: "$$", display: true },

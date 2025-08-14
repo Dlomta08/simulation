@@ -16,6 +16,9 @@
       document.documentElement.classList.add('dark-mode');
     }
   </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 </head>
 <body>
   <div class="symbol-background"></div>
@@ -118,7 +121,7 @@
         <button type="button" onclick="insertLatexSnippet('latexInput', '\\approx')">&asymp;</button>
         <button type="button" onclick="insertLatexSnippet('latexInput', '\\infty')">&infin;</button>
       </div>
-    <textarea id="latexInput" name="latex_content" rows="6" cols="60" placeholder="მაგ. $$a^2 + b^2 = c^2$$"></textarea><br><br>
+    <textarea id="latexInput" name="latex_content" rows="6" cols="60" placeholder="a^2 + b^2 = c^2"></textarea><br><br>
 
     <!-- Live Preview -->
     <div id="latexPreview"></div>

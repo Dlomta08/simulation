@@ -201,3 +201,36 @@ select {
   color: #e0e0e0;
   box-shadow: inset 0 1px 3px rgba(255,255,255,0.05);
 }
+
+/* LaTeX Input Box */
+#latexInput {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 16px;
+  line-height: 1.5;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  resize: vertical;
+  font-family: "Segoe UI", sans-serif;
+  background: #fff;
+  color: #333;
+  transition: border-color 0.3s ease, background 0.3s ease;
+  box-sizing: border-box;
+}
+
+#latexInput:focus {
+  border-color: #4CAF50;
+  outline: none;
+  box-shadow: 0 0 4px rgba(76, 175, 80, 0.4);
+}
+
+.dark-mode #latexInput {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+.dark-mode #latexInput:focus {
+  border-color: #81c784;
+  box-shadow: 0 0 4px rgba(129, 199, 132, 0.4);
+}
