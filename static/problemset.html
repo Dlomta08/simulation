@@ -16,9 +16,6 @@
       document.documentElement.classList.add('dark-mode');
     }
   </script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
 </head>
 <body>
   <div class="symbol-background"></div>
@@ -102,29 +99,53 @@
   <div id="formLatex" style="display:none;">
     <label for="latexInput"><strong>LaTeX ამოცანა:</strong></label><br>
       <div id="latexShortcuts" style="margin-bottom:8px;">
-        <!-- ფუნქციები -->
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\text{}')">ტექსტი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\frac{}{}')">წილადი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\sqrt{}')">კვადრატული ფესვი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\int_{}^{} {} \\,dx')">ინტეგრალი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\sum_{}^{} {}')">ჯამი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\prod_{}^{} {}')">ნამრავლი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\lim_{x \\to {}} {}')">ლიმიტი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\log_{}{}')">ლოგარითმი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\sin{}')">სინუსი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\cos{}')">კოსინუსი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\tan{}')">ტანგენსი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\vec{}')">ვექტორი</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\leq')">&leq;</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\geq')">&geq;</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\neq')">&ne;</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\approx')">&asymp;</button>
-        <button type="button" onclick="insertLatexSnippet('latexInput', '\\infty')">&infin;</button>
+        <div class="latex-shortcut-table">
+          <button type="button" onclick="insertLatexSnippet('latexInput', '^{}')">$x^n$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '_{}')">$x_n$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\sqrt{}')">$\sqrt{x}$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\frac{}{}')">$\frac{a}{b}$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\sum_{}^{}')">$\sum_{}^{}$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\prod_{}^{}')">$\prod_{}^{}$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\int_{}^{}')">$\int_{}^{}$</button>
+
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\sqrt[]{}')">$\sqrt[n]{x}$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\oint_{}^{}')">$\oint_{}^{}$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\frac{d}{dx}')">$\frac{d}{dx}$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\frac{\partial }{\partial x}')">$\frac{\partial }{\partial x}$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\implies')">$\implies$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\iff')">$\iff$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\times')">$\times$</button>
+          
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\#')">$\#$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\wedge')">$\wedge$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\vee')">$\vee$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\in')">$\in$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\notin')">$\notin$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\smallsetminus')">$\smallsetminus$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\lim_{x \\to 0} ')">$\lim_{x\to 0}$</button>
+          
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\infty')">$\infty$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\pm')">$\pm$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\mp')">$\mp$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\varnothing')">$\varnothing$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\forall')">$\forall$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\exists')">$\exists$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\neq')">$\neq$</button>
+          
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\Delta')">$\Delta$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\to')">$\to$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '|')">$|$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\nmid')">$\nmid$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\lbrace')">$\lbrace\rbrace$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\neg')">$\neg$</button>
+          <button type="button" onclick="insertLatexSnippet('latexInput', '\\approx')">$\approx$</button>
+        </div>
+        </div>
       </div>
-    <textarea id="latexInput" name="latex_content" rows="6" cols="60" placeholder="a^2 + b^2 = c^2"></textarea><br><br>
+    <textarea id="latexInput" name="latex_content" rows="6" cols="60" placeholder="მაგ. $$a^2 + b^2 = c^2$$"></textarea><br><br>
 
     <!-- Live Preview -->
-    <div id="latexPreview"></div>
+    <div id="latexPreview" style="min-height:50px; padding:8px; border:1px solid #ccc; background:#fafafa;"></div>
     
     <br>
     <button type="button" onclick="addProblemLatex()">დამატება</button>
