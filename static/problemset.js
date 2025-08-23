@@ -41,7 +41,7 @@ function initLatexPreview() {
 
     latexInput.addEventListener('input', () => {
         // Always wrap user input in $$ ... $$ for display math
-        const wrappedLatex = `${latexInput.value}`;
+        const wrappedLatex = `$$ ${latexInput.value} $$`;
         latexPreview.textContent = wrappedLatex; // set raw text
 
         // Render LaTeX visually
