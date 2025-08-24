@@ -15,26 +15,34 @@
     renderJS.onload = initLatexPreview;
     document.head.appendChild(renderJS);
 })();
-function insertLatexSnippet(inputId, snippet) {
-    const input = document.getElementById(inputId);
+
+let activeInputId = "latexInput"; // default target is the main textarea
+
+function setActiveInput(id) {
+  activeInputId = id;
+}
+
+function insertLatexSnippet(_ignored, snippet) {
+    const input = document.getElementById(activeInputId);
     if (!input) return;
+
     const start = input.selectionStart || 0;
     const end = input.selectionEnd || 0;
-    // Insert snippet at cursor position
     input.value = input.value.slice(0, start) + snippet + input.value.slice(end);
-    // Place cursor inside the first set of braces if present
-    const firstBrace = snippet.indexOf('{}');
+
+    const firstBrace = snippet.indexOf("{}");
     if (firstBrace !== -1) {
         const pos = start + firstBrace + 1;
         input.setSelectionRange(pos, pos);
     } else {
-        // Place cursor after inserted snippet
         input.setSelectionRange(start + snippet.length, start + snippet.length);
     }
+
     input.focus();
-    // Trigger input event for live preview
-    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new Event("input")); // update preview
 }
+
+
 function initLatexPreview() {
     const latexInput = document.getElementById('latexInput');
     const latexPreview = document.getElementById('latexPreview');
@@ -174,6 +182,16 @@ function loadProblems() {
       data.forEach(p => {
         const tagsArray = p.tags ? p.tags.split(",").map(t => t.trim()) : [];
 
+        // Parse options if it's a LaTeX problem
+        let optionsArray = [];
+        if (p.options) {
+          try {
+            optionsArray = JSON.parse(p.options);
+          } catch (err) {
+            console.error("Failed to parse options for problem", p.id, err);
+          }
+        }
+
         const card = createProblemCard(
           p.id,
           p.difficulty,
@@ -181,7 +199,8 @@ function loadProblems() {
           p.image_url,
           p.source,
           p.word_content,
-          p.latex_content
+          p.latex_content,
+          optionsArray // ✅ pass parsed options here
         );
 
         container.appendChild(card);
@@ -194,10 +213,11 @@ function loadProblems() {
           source: p.source,
           word_content: p.word_content,
           latex_content: p.latex_content,
+          options: optionsArray, // store for later if needed
           element: card
         });
 
-        // ✅ Render LaTeX for this card only if it has latex_content
+        // Render LaTeX if exists
         if (p.latex_content && p.latex_content.trim() !== "" && window.MathJax && window.MathJax.typesetPromise) {
           MathJax.typesetPromise([card])
             .then(() => console.log(`MathJax rendered for problem ${p.id}`))
@@ -211,7 +231,8 @@ function loadProblems() {
 }
 
 
-function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent = null, latexContent = null) {
+
+function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent = null, latexContent = null, options = []) {
   const card = document.createElement("div");
   card.className = "problem-card";
 
@@ -221,7 +242,6 @@ function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent =
     contentHTML = `<img src="${imageUrl}" alt="Problem Image" class="problem-img">`;
   } 
   else if (latexContent && latexContent.trim() !== "") {
-    // Block-style LaTeX delimiters for better rendering
     contentHTML = `<div class="latex-content">\\[${latexContent}\\]</div>`;
   }
   else if (wordContent && wordContent.trim() !== "") {
@@ -231,11 +251,25 @@ function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent =
     contentHTML = `<p style="color:red;">ამოცანის შინაარსი ვერ ჩაიტვირთა.</p>`;
   }
 
+  // Options HTML for LaTeX problems
+  let optionsHTML = "";
+  if (options && options.length > 0) {
+    optionsHTML = `
+      <div class="latex-options">
+        <strong>პასუხის ვარიანტები:</strong>
+        <div class="options-row">
+          ${options.map((opt, i) => `<p>${['ა','ბ','გ','დ','ე','ვ'][i]}) ${opt}</p>`).join("")}
+        </div>
+      </div>
+    `;
+  }
+
   card.innerHTML = `
     <input type="checkbox" class="quiz-select">
     <button onclick="toggleSpoiler(this)">გახსენით ამოცანა</button>
     <div class="spoiler-content" style="display:none;">
       ${contentHTML}
+      ${optionsHTML}
     </div>
     <p><strong>სირთულე:</strong> ${difficulty}</p>
     <p><strong>თემები:</strong> ${tags.map(t => `<span class="tag">${t}</span>`).join(", ")}</p>
@@ -247,7 +281,7 @@ function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent =
     deleteProblem(id, card, source);
   });
 
-  // ✅ MathJax rendering if LaTeX content exists
+  // MathJax render
   if (latexContent && latexContent.trim() !== "" && window.MathJax && window.MathJax.typesetPromise) {
     MathJax.typesetPromise([card])
       .then(() => console.log(`MathJax rendered for problem ${id}`))
@@ -256,6 +290,8 @@ function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent =
 
   return card;
 }
+
+
 
 
 
@@ -379,12 +415,25 @@ function addLatexOption() {
 
   div.innerHTML = `
     <input type="radio" name="latexCorrect" value="${latexOptionCount}">
-    <input type="text" id="latexOption${latexOptionCount}" placeholder="ვარიანტი ${String.fromCharCode(65 + latexOptionCount)}">
+    <input type="text" id="latexOption${latexOptionCount}" 
+           placeholder="ვარიანტი ${String.fromCharCode(65 + latexOptionCount)}"
+           onfocus="setActiveInput('latexOption${latexOptionCount}')">
   `;
 
-  container.insertBefore(div, container.lastElementChild); // add before button
+  container.insertBefore(div, container.lastElementChild); // before "add option" button
+
+  // 🔑 Attach input listener so preview updates
+  div.querySelector("input[type=text]").addEventListener("input", () => {
+    if (typeof initLatexPreview === "function") {
+      // call updatePreview from inside initLatexPreview
+      const evt = new Event("input");
+      document.getElementById("latexInput").dispatchEvent(evt);
+    }
+  });
+
   latexOptionCount++;
 }
+
 
 function addProblemLatex() {
   const latex = document.getElementById("latexInput").value.trim();
@@ -518,16 +567,16 @@ function applyFilters() {
 
 function renderQuizPreview() {
   const preview = document.getElementById('quizPreview');
+
+  // Get all selected problems
   const selected = problems.filter(p => p.element.querySelector('.quiz-select')?.checked);
 
-  // დაამატე ახალი ამოცანები preview-ში
+  // Add new selected problems
   selected.forEach(p => {
-    if (!quizPreviewProblems.includes(p)) {
-      quizPreviewProblems.push(p);
-    }
+    if (!quizPreviewProblems.includes(p)) quizPreviewProblems.push(p);
   });
 
-  // წაშალე გამორთულები
+  // Remove unselected problems
   quizPreviewProblems = quizPreviewProblems.filter(p =>
     p.element.querySelector('.quiz-select')?.checked
   );
@@ -546,42 +595,71 @@ function renderQuizPreview() {
     div.dataset.difficulty = p.difficulty;
     div.dataset.tags = JSON.stringify(p.tags);
 
+    // Label with problem number (always visible)
     const label = document.createElement('div');
     label.className = 'label';
-    label.innerHTML = `<strong>ამოცანა N${i + 1}:</strong> სირთულე: ${p.difficulty} – თემები: ${p.tags.join(', ')}`;
+    label.innerHTML = `<strong>ამოცანა N${i + 1}</strong>`;
 
+    // Button to toggle content
+    const button = document.createElement('button');
+    button.textContent = "გახსენით ამოცანა";
+    button.style.margin = "5px 0";
+
+    // Content (everything hidden initially)
     const contentEl = document.createElement('div');
+    contentEl.className = 'spoiler-content';
+    contentEl.style.display = 'none';
     contentEl.style.marginTop = '10px';
 
+    // Problem statement
     if (p.imageUrl) {
-      const img = document.createElement('img');
-      img.src = p.imageUrl;
-      img.style.maxWidth = '100%';
-      contentEl.appendChild(img);
+        const img = document.createElement('img');
+        img.src = p.imageUrl;
+        img.style.maxWidth = '100%';
+        contentEl.appendChild(img);
     } else if (p.word_content) {
-      contentEl.innerHTML = p.word_content;
+        contentEl.innerHTML += `<div>${p.word_content}</div>`;
     } else if (p.latex_content) {
-      contentEl.innerHTML = `\\(${p.latex_content}\\)`;
+        contentEl.innerHTML += `<div>\\[${p.latex_content}\\]</div>`;
     } else {
-      contentEl.innerHTML = '<p style="color:red;">ამოცანის შინაარსი ვერ ჩაიტვირთა.</p>';
+        contentEl.innerHTML += '<p style="color:red;">ამოცანის შინაარსი ვერ ჩაიტვირთა.</p>';
     }
 
-    div.addEventListener('click', () => {
-      contentEl.style.display = contentEl.style.display === 'none' ? 'block' : 'none';
+    // Options (if exist)
+    if (p.options && p.options.length > 0) {
+        const optionsHTML = p.options.map((opt, idx) => {
+            const letter = ['ა','ბ','გ','დ','ე','ვ'][idx] || `Option ${idx+1}`;
+            return `<div>(${letter}) ${opt}</div>`;
+        }).join("");
+        contentEl.innerHTML += `<div class="latex-options"><strong>პასუხის ვარიანტები:</strong>${optionsHTML}</div>`;
+    }
+
+    // Difficulty & tags
+    contentEl.innerHTML += `<p><strong>სირთულე:</strong> ${p.difficulty}</p>`;
+    contentEl.innerHTML += `<p><strong>თემები:</strong> ${p.tags.join(', ')}</p>`;
+
+    // Toggle content visibility
+    button.addEventListener('click', () => {
+        const isShown = contentEl.style.display === 'block';
+        contentEl.style.display = isShown ? 'none' : 'block';
+        button.textContent = isShown ? "გახსენით ამოცანა" : "დახურეთ ამოცანა";
+
+        // Render LaTeX when shown
+        if (!isShown && window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise([contentEl])
+              .then(() => console.log("MathJax rendered"))
+              .catch(err => console.error(err));
+        }
     });
 
     div.appendChild(label);
+    div.appendChild(button);
     div.appendChild(contentEl);
     preview.appendChild(div);
   });
-
-  // 📐 LaTeX MathJax რენდერი
-  if (window.MathJax && window.MathJax.typesetPromise) {
-    MathJax.typesetPromise([preview])
-      .then(() => console.log("MathJax rendered"))
-      .catch(err => console.error("MathJax error:", err));
-  }
 }
+
+
 
 function shuffleQuiz() {
   for (let i = quizPreviewProblems.length - 1; i > 0; i--) {

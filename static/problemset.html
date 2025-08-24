@@ -35,7 +35,6 @@
 
   <div id="typeButtons" style="display:none; margin: 10px 0;">
     <button onclick="showForm('image')" value="image">📷 ფოტოს ატვირთვით</button>
-    <button onclick="showForm('word')" value="word">📝 Word-სტილის</button>
     <button onclick="showForm('latex')" value="latex">📐 LaTeX</button>
   </div>
 
@@ -131,21 +130,22 @@
 
     <div class="options-row">
     <div class="option">
-      <input type="radio" name="latexCorrect" value="0">
-      <input type="text" id="latexOption0" placeholder="ვარიანტი A">
-    </div>
-    <div class="option">
-      <input type="radio" name="latexCorrect" value="1">
-      <input type="text" id="latexOption1" placeholder="ვარიანტი B">
-    </div>
-    <div class="option">
-      <input type="radio" name="latexCorrect" value="2">
-      <input type="text" id="latexOption2" placeholder="ვარიანტი C">
-    </div>
-    <div class="option">
-      <input type="radio" name="latexCorrect" value="3">
-      <input type="text" id="latexOption3" placeholder="ვარიანტი D">
-    </div>
+  <input type="radio" name="latexCorrect" value="0">
+  <input type="text" id="latexOption0" placeholder="ვარიანტი A" onfocus="setActiveInput('latexOption0')">
+</div>
+<div class="option">
+  <input type="radio" name="latexCorrect" value="1">
+  <input type="text" id="latexOption1" placeholder="ვარიანტი B" onfocus="setActiveInput('latexOption1')">
+</div>
+<div class="option">
+  <input type="radio" name="latexCorrect" value="2">
+  <input type="text" id="latexOption2" placeholder="ვარიანტი C" onfocus="setActiveInput('latexOption2')">
+</div>
+<div class="option">
+  <input type="radio" name="latexCorrect" value="3">
+  <input type="text" id="latexOption3" placeholder="ვარიანტი D" onfocus="setActiveInput('latexOption3')">
+</div>
+
   </div>
 
     <br>
