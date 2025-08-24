@@ -126,6 +126,32 @@
     <!-- Live Preview -->
     <div id="latexPreview"></div>
     
+    <div id="latexOptions" style="margin-top: 15px;">
+    <strong>პასუხის ვარიანტები:</strong><br><br>
+
+    <div class="options-row">
+    <div class="option">
+      <input type="radio" name="latexCorrect" value="0">
+      <input type="text" id="latexOption0" placeholder="ვარიანტი A">
+    </div>
+    <div class="option">
+      <input type="radio" name="latexCorrect" value="1">
+      <input type="text" id="latexOption1" placeholder="ვარიანტი B">
+    </div>
+    <div class="option">
+      <input type="radio" name="latexCorrect" value="2">
+      <input type="text" id="latexOption2" placeholder="ვარიანტი C">
+    </div>
+    <div class="option">
+      <input type="radio" name="latexCorrect" value="3">
+      <input type="text" id="latexOption3" placeholder="ვარიანტი D">
+    </div>
+  </div>
+
+    <br>
+    <button type="button" onclick="addLatexOption()">➕ ვარიანტის დამატება</button>
+  </div>
+
     <br>
     <button type="button" onclick="addProblemLatex()">დამატება</button>
   </div>

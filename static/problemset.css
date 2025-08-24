@@ -312,3 +312,97 @@ select {
   background: #e6e6e6;
   outline: none;
 }
+
+#latexPreview .options {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: nowrap;       /* ❌ no wrapping */
+  gap: 12px;               /* spacing between options */
+  overflow-x: auto;        /* enable scroll if too many options */
+  padding-bottom: 6px;     /* small space for scroll bar */
+}
+
+#latexPreview .option {
+  flex: 0 0 auto;          /* keep natural size, don’t shrink */
+  min-width: 120px;        /* all options at least this wide */
+  text-align: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s, background 0.2s;
+}
+
+#latexPreview .option:hover {
+  background: #f3f4f6;
+  transform: translateY(-4px); /* hover "lift" */
+}
+
+#latexPreview .option.correct {
+  border: 2px solid #10b981; /* green */
+  background: #ecfdf5;
+  font-weight: bold;
+  color: #065f46;
+}
+
+
+#latexOptions {
+  margin-top: 15px;
+}
+
+#latexOptions strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+#latexOptions .option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  flex: 0 0 auto;       /* don’t shrink */
+  min-width: 160px;     /* each option box wide enough */
+}
+
+#latexOptions .option input[type="text"] {
+  flex: 1;              /* text box fills remaining space */
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+#latexOptions .options-row {
+  display: flex;
+  flex-wrap: nowrap;    /* all in one row */
+  gap: 12px;
+  overflow-x: auto;     /* scroll if too many */
+  padding-bottom: 8px;
+}
+
+/* hide scrollbar for cleaner design */
+#latexOptions .options-row::-webkit-scrollbar {
+  display: none;
+}
+#latexOptions .options-row {
+  -ms-overflow-style: none;  /* IE */
+  scrollbar-width: none;     /* Firefox */
+}
+
+#latexOptions button {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+#latexOptions button:hover {
+  background: #2563eb;
+}

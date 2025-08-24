@@ -39,10 +39,33 @@ function initLatexPreview() {
     const latexInput = document.getElementById('latexInput');
     const latexPreview = document.getElementById('latexPreview');
 
-    latexInput.addEventListener('input', () => {
-        // Always wrap user input in $$ ... $$ for display math
-        const wrappedLatex = `$$ ${latexInput.value} $$`;
-        latexPreview.textContent = wrappedLatex; // set raw text
+    function updatePreview() {
+        let previewHTML = "";
+
+        // Main problem
+        if (latexInput.value.trim()) {
+            previewHTML += `<div><strong>ამოცანა:</strong><br>$$ ${latexInput.value} $$</div><br>`;
+        }
+
+        // Options
+        let i = 0;
+        let optionsHTML = "";
+        while (true) {
+            const field = document.getElementById("latexOption" + i);
+            if (!field) break;
+            const value = field.value.trim();
+            if (value) {
+                const isCorrect = document.querySelector(`input[name="latexCorrect"][value="${i}"]`)?.checked;
+                optionsHTML += `<div${isCorrect ? ' style="font-weight:bold;color:green;"' : ''}>
+                    (${String.fromCharCode(65 + i)}) $$ ${value} $$</div>`;
+            }
+            i++;
+        }
+        if (optionsHTML) {
+            previewHTML += `<div><strong>ვარიანტები:</strong><br>${optionsHTML}</div>`;
+        }
+
+        latexPreview.innerHTML = previewHTML;
 
         // Render LaTeX visually
         renderMathInElement(latexPreview, {
@@ -54,8 +77,29 @@ function initLatexPreview() {
             ],
             throwOnError: false
         });
+    }
+
+    // Update when problem changes
+    latexInput.addEventListener('input', updatePreview);
+
+    // Update when options change
+    document.addEventListener('input', e => {
+        if (e.target.id && e.target.id.startsWith("latexOption")) {
+            updatePreview();
+        }
     });
+
+    // Update when correct answer is selected
+    document.addEventListener('change', e => {
+        if (e.target.name === "latexCorrect") {
+            updatePreview();
+        }
+    });
+
+    // Initial render
+    updatePreview();
 }
+
 function toggleTypeButtons() {
   const typeButtons = document.getElementById("typeButtons");
   const commonFields = document.getElementById("commonFields");
@@ -325,17 +369,67 @@ function addProblemWord() {
     .catch(err => alert(err.message));
 }
 
+let latexOptionCount = 4;
+
+function addLatexOption() {
+  const container = document.getElementById('latexOptions');
+
+  const div = document.createElement('div');
+  div.className = "option";
+
+  div.innerHTML = `
+    <input type="radio" name="latexCorrect" value="${latexOptionCount}">
+    <input type="text" id="latexOption${latexOptionCount}" placeholder="ვარიანტი ${String.fromCharCode(65 + latexOptionCount)}">
+  `;
+
+  container.insertBefore(div, container.lastElementChild); // add before button
+  latexOptionCount++;
+}
+
 function addProblemLatex() {
-  const latex = document.getElementById("latexInput").value;
-  const tags = document.getElementById("tags").value;
+  const latex = document.getElementById("latexInput").value.trim();
+  const tags = document.getElementById("tags").value.trim();
   const difficulty = document.getElementById("difficulty").value;
   const target = document.getElementById("problemTarget").value;
 
+  // Collect options
+  let options = [];
+  let i = 0;
+  while (true) {
+    const field = document.getElementById("latexOption" + i);
+    if (!field) break;
+    const value = field.value.trim();
+    if (value) options.push(value);
+    i++;
+  }
+
+  // Correct answer index
+  let correctIndex = document.querySelector('input[name="latexCorrect"]:checked');
+  correctIndex = correctIndex ? parseInt(correctIndex.value) : null;
+
+  if (!latex) {
+    alert("გთხოვთ შეიყვანოთ ამოცანა (LaTeX).");
+    return;
+  }
+  if (options.length < 2) {
+    alert("გთხოვთ შეიყვანოთ მინიმუმ ორი ვარიანტი.");
+    return;
+  }
+  if (correctIndex === null) {
+    alert("გთხოვთ მონიშნოთ სწორი პასუხი.");
+    return;
+  }
+
+  // Build FormData
   const formData = new FormData();
   formData.append("latex_content", latex);
   formData.append("tags", tags);
   formData.append("difficulty", difficulty);
   formData.append("is_private", target === "personal");
+
+  // Store options as JSON
+  formData.append("options", JSON.stringify(options));
+  formData.append("correct", correctIndex);
 
   fetch("/upload_problem", {
     method: "POST",
@@ -347,9 +441,15 @@ function addProblemLatex() {
       if (!res.ok) throw new Error(text || "ამოცანის დამატება ვერ განხორციელდა.");
       alert("LaTeX ამოცანა დაემატა!");
       document.getElementById("latexInput").value = "";
+      options.forEach((_, idx) => {
+        const f = document.getElementById("latexOption" + idx);
+        if (f) f.value = "";
+      });
+      document.querySelectorAll('input[name="latexCorrect"]').forEach(r => (r.checked = false));
     })
     .catch(err => alert(err.message));
 }
+
 
 
 function deleteProblem(problemId, card, source) {
