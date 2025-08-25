@@ -407,34 +407,6 @@ function addProblemWord() {
 
 let latexOptionCount = 4;
 
-function addLatexOption() {
-  const container = document.getElementById('latexOptions');
-
-  const div = document.createElement('div');
-  div.className = "option";
-
-  div.innerHTML = `
-    <input type="radio" name="latexCorrect" value="${latexOptionCount}">
-    <input type="text" id="latexOption${latexOptionCount}" 
-           placeholder="ვარიანტი ${String.fromCharCode(65 + latexOptionCount)}"
-           onfocus="setActiveInput('latexOption${latexOptionCount}')">
-  `;
-
-  container.insertBefore(div, container.lastElementChild); // before "add option" button
-
-  // 🔑 Attach input listener so preview updates
-  div.querySelector("input[type=text]").addEventListener("input", () => {
-    if (typeof initLatexPreview === "function") {
-      // call updatePreview from inside initLatexPreview
-      const evt = new Event("input");
-      document.getElementById("latexInput").dispatchEvent(evt);
-    }
-  });
-
-  latexOptionCount++;
-}
-
-
 function addProblemLatex() {
   const latex = document.getElementById("latexInput").value.trim();
   const tags = document.getElementById("tags").value.trim();
@@ -738,3 +710,51 @@ document.addEventListener('change', e => {
     renderQuizPreview();
   }
 });
+
+function addLatexOption() {
+  try {
+    const latexOptionsEl = document.getElementById('latexOptions');
+    if (!latexOptionsEl) {
+      console.error('addLatexOption: #latexOptions not found');
+      return;
+    }
+
+    const row = latexOptionsEl.querySelector('.options-row');
+    if (!row) {
+      console.error('addLatexOption: .options-row not found inside #latexOptions');
+      return;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `
+      <input type="radio" name="latexCorrect" value="${latexOptionCount}">
+      <input type="text" id="latexOption${latexOptionCount}" placeholder="ვარიანტი ${String.fromCharCode(65 + latexOptionCount)}" onfocus="setActiveInput('latexOption${latexOptionCount}')">
+    `;
+
+    row.appendChild(div);
+
+    const textInput = div.querySelector('input[type=text]');
+    if (textInput) {
+      // focus the new input so user can type immediately
+      textInput.focus();
+      // when user types, existing preview listeners will pick up this input via dispatched event
+      textInput.addEventListener('input', () => {
+        const evt = new Event('input');
+        document.getElementById('latexInput')?.dispatchEvent(evt);
+      });
+
+      // trigger an immediate preview update
+      const evt = new Event('input');
+      document.getElementById('latexInput')?.dispatchEvent(evt);
+    }
+
+    console.log(`Added latex option ${latexOptionCount}`);
+    latexOptionCount++;
+  } catch (err) {
+    console.error('addLatexOption error', err);
+  }
+}
+
+console.log('Attaching addLatexOption to window');
+window.addLatexOption = addLatexOption;
