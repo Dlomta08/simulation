@@ -52,13 +52,17 @@ class User(db.Model):
 
 class Problem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    image_filename = db.Column(db.String(255), nullable=False)
+    image_filename = db.Column(db.String(255), nullable=False, default="")
     tags = db.Column(db.String(255))
     difficulty = db.Column(db.Integer)
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     is_private = db.Column(db.Boolean, default=False)
-    word_content = db.Column(db.Text)         # ახალი
-    latex_content = db.Column(db.Text)        # ახალი
+    word_content = db.Column(db.Text)
+    latex_content = db.Column(db.Text)
+
+    # 🔥 New fields
+    options = db.Column(db.Text)   # JSON string list of options
+    correct = db.Column(db.Integer)  # index of correct option
     
 # Create DB tables
 with app.app_context():
@@ -455,15 +459,19 @@ def upload_problem():
             )
 
         elif "latex_content" in request.form:
-            # 🔢 LaTeX ამოცანა
             latex = request.form["latex_content"]
+            options = request.form.get("options", "[]")
+            correct = request.form.get("correct")
+
             problem = Problem(
                 owner_id=user.id,
-                image_filename="",  # სავალდებულო ველია
+                image_filename="",
                 latex_content=latex,
                 tags=tags,
                 difficulty=difficulty,
-                is_private=is_private
+                is_private=is_private,
+                options=options,
+                correct=int(correct) if correct is not None else None
             )
 
         else:
@@ -559,7 +567,9 @@ def get_problems():
             "latex_content": p.latex_content,
             "tags": p.tags or "",
             "difficulty": p.difficulty,
-            "source": "personal" if p.owner_id == user.id and p.is_private else "public"
+            "source": "personal" if p.owner_id == user.id and p.is_private else "public",
+            "options": p.options,
+            "correct": p.correct
         }
         for p in problems
     ])

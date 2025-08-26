@@ -258,7 +258,9 @@ function createProblemCard(id, difficulty, tags, imageUrl, source, wordContent =
       <div class="latex-options">
         <strong>პასუხის ვარიანტები:</strong>
         <div class="options-row">
-          ${options.map((opt, i) => `<p>${['ა','ბ','გ','დ','ე','ვ'][i]}) ${opt}</p>`).join("")}
+          ${options.map((opt, i) => 
+              `<p>${['ა','ბ','გ','დ','ე','ვ'][i]}) \\(${opt}\\)</p>`
+            ).join("")}
         </div>
       </div>
     `;
